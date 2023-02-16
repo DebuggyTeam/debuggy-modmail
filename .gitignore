@@ -1,0 +1,10 @@
+run/
+out/
+.gradle/
+.idea/
+build/
+/maven/
+.secret*
+.users*
+maven.sock
+config.ini

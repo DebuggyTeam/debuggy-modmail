@@ -18,14 +18,14 @@ public final class Main {
 	public static JDA client;
 
 	public static void main(String[] args) {
+		//TODO: Don't include the token
 		final var builder = JDABuilder.createLight("bleh")
 			.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
 			.setActivity(Activity.of(Activity.ActivityType.WATCHING, "for your DMs!"))
 			// Even though createLight should already disallow these, I'm putting these here anyways.
-			.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS);
+			.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS)
+				.addEventListeners(new SomethingAboutMessageEvents());
 		
 		client = builder.build();
 	}
-	
-	SomethingAboutMessageEvents.init();
 }

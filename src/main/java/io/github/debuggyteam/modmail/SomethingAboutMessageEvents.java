@@ -26,16 +26,17 @@ public class SomethingAboutMessageEvents implements EventListener {
             if (msgEvent.isFromType(ChannelType.PRIVATE)) {
                 var theMessage = msgEvent.getMessage();
                 var theUser = msgEvent.getMessage().getAuthor();
-                List<Message.Attachment> theAttachements = theMessage.getAttachments();
+                List<Message.Attachment> theAttachments = theMessage.getAttachments();
                 
                 theEmbed.setAuthor(theUser.getName(), theUser.getAvatarUrl(), theUser.getAvatarUrl());
                 theEmbed.setFooter(theUser.getId() + " • Community Manager");
                 theEmbed.setDescription(theMessage.getContentRaw());
                 
-                for (int i = 0; i < 11; i++) {
-                    if (!theAttachements.isEmpty()) {
-                        theEmbed.setImage(theAttachements.get(i).getUrl());
-                    }   
+                
+                if (!theAttachments.isEmpty()) {
+                    for (Message.Attachment theAttachment : theAttachments) {
+                        theEmbed.setImage(theAttachment.getUrl());
+                    }
                 }
                 
                 Objects.requireNonNull(Main.client.getTextChannelById(1077094694485512273L)).sendMessageEmbeds(theEmbed.build()).queue();

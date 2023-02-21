@@ -3,10 +3,9 @@ package io.github.debuggyteam.modmail;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
-import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,82 +14,90 @@ import java.util.List;
  * @author woodiertexas
  * @since ${version}
  **/
-public class SomethingAboutMessageEvents implements EventListener {
+public class SomethingAboutMessageEvents extends ListenerAdapter {
 
-    @Override
-    public void onEvent(@NotNull GenericEvent event) {
-        EmbedBuilder theEmbed = new EmbedBuilder();
+	@Override
+	public void onMessageReceived(final MessageReceivedEvent msgEvent) {
+		if (msgEvent.isFromType(ChannelType.PRIVATE)) {
+			handleMessage(msgEvent, Main.targetChannel);
+		}
+	}
 
-        if (event instanceof MessageReceivedEvent msgEvent) {
-            if (msgEvent.isFromType(ChannelType.PRIVATE)) {
-				var theMessage = msgEvent.getMessage();
-				var theUser = msgEvent.getMessage().getAuthor();
-				List<Message.Attachment> theAttachments = theMessage.getAttachments();
+	/**
+	 * Proxies the message to the given channel.
+	 *
+	 * @param msgEvent      The message to proxy
+	 * @param targetChannel Where to send the message.
+	 */
+	private static void handleMessage(MessageReceivedEvent msgEvent, MessageChannel targetChannel) {
+		final EmbedBuilder theEmbed = new EmbedBuilder();
 
-				boolean spoilEmbeds = false;
-				final var attachmentList = new ArrayList<String>(theAttachments.size());
+		final var theMessage = msgEvent.getMessage();
+		final var theUser = msgEvent.getMessage().getAuthor();
+		final List<Message.Attachment> theAttachments = theMessage.getAttachments();
 
-				theEmbed.setAuthor(theUser.getName(), theUser.getAvatarUrl(), theUser.getAvatarUrl());
-				theEmbed.setFooter(theUser.getId() + " • Community Manager");
-				theEmbed.setDescription(theMessage.getContentRaw());
+		boolean spoilEmbeds = false;
+		final var attachmentList = new ArrayList<String>(theAttachments.size());
 
-				final var itr = theAttachments.iterator();
+		theEmbed.setAuthor(theUser.getName(), theUser.getAvatarUrl(), theUser.getAvatarUrl());
+		theEmbed.setFooter(theUser.getId() + " • Community Manager");
+		theEmbed.setDescription(theMessage.getContentRaw());
 
-				// Finds first image to embed.
-				while (itr.hasNext()) {
-					final var attachment = itr.next();
+		final var itr = theAttachments.iterator();
 
-					if (attachment.isImage()) {
-						// This only is needed for images.
-						// Everything else can be spoiled via pipes.
-						spoilEmbeds = attachment.isSpoiler();
+		// Finds first image to embed.
+		while (itr.hasNext()) {
+			final var attachment = itr.next();
 
-						theEmbed.setImage(attachment.getUrl());
+			if (attachment.isImage()) {
+				// This only is needed for images.
+				// Everything else can be spoiled via pipes.
+				spoilEmbeds = attachment.isSpoiler();
 
-						// No need to continue here; we found the first image.
-						break;
-					} else {
-						appendAttachment(attachmentList, attachment);
-					}
-				}
+				theEmbed.setImage(attachment.getUrl());
 
-				var builder = Main.targetChannel.sendMessageEmbeds(theEmbed.build());
-
-				// Reuse builder
-				theEmbed.clear();
-
-				while (itr.hasNext()) {
-					final var attachment = itr.next();
-
-					if (attachment.isImage()) {
-						spoilEmbeds |= attachment.isSpoiler();
-						theEmbed.setImage(attachment.getUrl());
-						builder.addEmbeds(theEmbed.build());
-					} else {
-						appendAttachment(attachmentList, attachment);
-					}
-				}
-
-
-				if (!attachmentList.isEmpty()) {
-					theEmbed.clear();
-					theEmbed.setTitle("Additional attachments");
-
-					final var descriptionBuilder = theEmbed.getDescriptionBuilder();
-					for (final var attachment : attachmentList) {
-						descriptionBuilder.append(attachment).append('\n');
-					}
-
-					builder.addEmbeds(theEmbed.build());
-				}
-
-				if (spoilEmbeds) {
-					builder.setContent("The message sent by ``" + theUser.getName() + "`` had attachments as spoilers. ||http://./||");
-				}
-
-				builder.queue();
+				// No need to continue here; we found the first image.
+				break;
+			} else {
+				appendAttachment(attachmentList, attachment);
 			}
 		}
+
+		var builder = targetChannel.sendMessageEmbeds(theEmbed.build());
+
+		// Reuse builder
+		theEmbed.clear();
+
+		while (itr.hasNext()) {
+			final var attachment = itr.next();
+
+			if (attachment.isImage()) {
+				spoilEmbeds |= attachment.isSpoiler();
+				theEmbed.setImage(attachment.getUrl());
+				builder.addEmbeds(theEmbed.build());
+			} else {
+				appendAttachment(attachmentList, attachment);
+			}
+		}
+
+
+		if (!attachmentList.isEmpty()) {
+			theEmbed.clear();
+			theEmbed.setTitle("Additional attachments");
+
+			final var descriptionBuilder = theEmbed.getDescriptionBuilder();
+			for (final var attachment : attachmentList) {
+				descriptionBuilder.append(attachment).append('\n');
+			}
+
+			builder.addEmbeds(theEmbed.build());
+		}
+
+		if (spoilEmbeds) {
+			builder.setContent("The message sent by ``" + theUser.getName() + "`` had attachments as spoilers. ||http://./||");
+		}
+
+		builder.queue();
 	}
 
 	private static void appendAttachment(List<String> attachmentList, Message.Attachment attachment) {

@@ -22,6 +22,8 @@ public class SomethingAboutMessageEvents implements EventListener {
     @Override
     public void onEvent(@NotNull GenericEvent event) {
         EmbedBuilder theEmbed = new EmbedBuilder();
+        long debuggyBotTest = 1077094694485512273L;
+        
         if (event instanceof MessageReceivedEvent msgEvent) {
             if (msgEvent.isFromType(ChannelType.PRIVATE)) {
                 var theMessage = msgEvent.getMessage();
@@ -32,14 +34,27 @@ public class SomethingAboutMessageEvents implements EventListener {
                 theEmbed.setFooter(theUser.getId() + " • Community Manager");
                 theEmbed.setDescription(theMessage.getContentRaw());
                 
+                int size = theAttachments.size();
                 
-                if (!theAttachments.isEmpty()) {
-                    for (Message.Attachment theAttachment : theAttachments) {
-                        theEmbed.setImage(theAttachment.getUrl());
+                if (theAttachments.isEmpty()) {
+                    Objects.requireNonNull(Main.client.getTextChannelById(debuggyBotTest)).sendMessageEmbeds(theEmbed.build()).queue();
+                } else if (size >= 1 && theAttachments.get(0).isImage()) {
+                    theEmbed.setImage(theAttachments.get(0).getUrl());
+                    Objects.requireNonNull(Main.client.getTextChannelById(debuggyBotTest)).sendMessageEmbeds(theEmbed.build()).queue();
+                } else if (size >= 2 && theAttachments.get(1).isImage()) {
+                    theEmbed.clear();
+
+                    var channel = Main.client.getTextChannelById(debuggyBotTest);
+                    var builder = channel.sendMessageEmbeds(theEmbed.build());
+                    
+                    for (int i = 0; i < size; i++) {
+                        theEmbed.setImage(theAttachments.get(i).getUrl());
+                        
+                        builder.addEmbeds(theEmbed.build());
                     }
+                    
+                    builder.queue();
                 }
-                
-                Objects.requireNonNull(Main.client.getTextChannelById(1077094694485512273L)).sendMessageEmbeds(theEmbed.build()).queue();
             }
         }
     }

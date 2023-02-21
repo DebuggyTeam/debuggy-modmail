@@ -38,11 +38,10 @@ public class SomethingAboutMessageEvents implements EventListener {
                 
                 if (theAttachments.isEmpty()) {
                     Objects.requireNonNull(Main.client.getTextChannelById(debuggyBotTest)).sendMessageEmbeds(theEmbed.build()).queue();
-                } else if (size >= 1 && theAttachments.get(0).isImage()) {
+                } else if (size == 1) {
                     theEmbed.setImage(theAttachments.get(0).getUrl());
                     Objects.requireNonNull(Main.client.getTextChannelById(debuggyBotTest)).sendMessageEmbeds(theEmbed.build()).queue();
-                } else if (size >= 2 && theAttachments.get(1).isImage()) {
-                    theEmbed.clear();
+                } else if (size >= 2) {
 
                     var channel = Main.client.getTextChannelById(debuggyBotTest);
                     var builder = channel.sendMessageEmbeds(theEmbed.build());

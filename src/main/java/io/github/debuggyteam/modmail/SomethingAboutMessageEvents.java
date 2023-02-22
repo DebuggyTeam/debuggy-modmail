@@ -25,15 +25,14 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 	public void onMessageReceived(final MessageReceivedEvent msgEvent) {
 		if (msgEvent.isFromType(ChannelType.PRIVATE)) {
 			final Message theMessage = msgEvent.getMessage();
-			String executableUrl = "";
+			List<String> executableUrls = new ArrayList<>();
 			boolean executableFound = false;
 
 			for (int i = 0; i < theMessage.getAttachments().size(); i++) {
 
 				if (isExecutable(theMessage.getAttachments().get(i).getUrl())) {
 					executableFound = true;
-					executableUrl = theMessage.getAttachments().get(i).getUrl();
-					break;
+					executableUrls.add(theMessage.getAttachments().get(i).getUrl());
 				}
 			}
 
@@ -47,7 +46,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 				final User theUser = msgEvent.getMessage().getAuthor();
 
 				createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), theMessage.getContentRaw(), 16711680);
-				theEmbed.addField("Executable link found:", executableUrl, false);
+				theEmbed.addField("Executable link(s) found:", String.valueOf(executableUrls), false);
 				targetChannel.sendMessageEmbeds(theEmbed.build()).queue();
 
 				theEmbed.clear();
@@ -167,6 +166,15 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		return false;
 	}
 
+	/**
+	 * Creates a common embed.
+	 *
+	 * @param embed         The EmbedBuilder to use.
+	 * @param authorName    The author's name (can be a user, a guild, or something else).
+	 * @param authorIconUrl The author's icon URL (can be a user, a guild, or something else).
+	 * @param description   The text description.
+	 * @param color         The embed's bar color.
+	 */
 	void createCommonEmbed(EmbedBuilder embed, String authorName, String authorIconUrl, String description, int color) {
 		embed.setAuthor(authorName, authorIconUrl, authorIconUrl);
 		embed.setDescription(description);

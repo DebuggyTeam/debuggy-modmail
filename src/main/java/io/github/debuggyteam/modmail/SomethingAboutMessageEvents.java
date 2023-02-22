@@ -46,12 +46,12 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 				final Guild guild = targetChannel.getGuild();
 				final User theUser = msgEvent.getMessage().getAuthor();
 
-				createCommonEmbed(theEmbed, theUser, theMessage.getContentRaw(), 16711680);
+				createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), theMessage.getContentRaw(), 16711680);
 				theEmbed.addField("Executable link found:", executableUrl, false);
 				targetChannel.sendMessageEmbeds(theEmbed.build()).queue();
 
 				theEmbed.clear();
-				createGuildEmbed(theEmbed, guild, "Your latest message contains one or more executable files. Please do not send executables in modmail.", 16711680);
+				createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Your latest message contains one or more executable files. Please do not send executables in modmail.", 16711680);
 				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
 
 			}
@@ -157,14 +157,8 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		return false;
 	}
 
-	void createCommonEmbed(EmbedBuilder embed, User user, String description, int color) {
-		embed.setAuthor(user.getName(), user.getAvatarUrl(), user.getAvatarUrl());
-		embed.setDescription(description);
-		embed.setColor(color);
-	}
-
-	void createGuildEmbed(EmbedBuilder embed, Guild guild, String description, int color) {
-		embed.setAuthor(guild.getName(), guild.getIconUrl(), guild.getIconUrl());
+	void createCommonEmbed(EmbedBuilder embed, String authorName, String authorIconUrl, String description, int color) {
+		embed.setAuthor(authorName, authorIconUrl, authorIconUrl);
 		embed.setDescription(description);
 		embed.setColor(color);
 	}

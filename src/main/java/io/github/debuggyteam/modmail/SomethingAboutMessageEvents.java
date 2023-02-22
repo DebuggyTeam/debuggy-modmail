@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.debuggyteam.modmail.Main.targetChannel;
+import static io.github.debuggyteam.modmail.Main.*;
 
 /**
  * @author woodiertexas
@@ -70,6 +70,10 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		final Message theMessage = msgEvent.getMessage();
 		final User theUser = msgEvent.getMessage().getAuthor();
 		final List<Message.Attachment> theAttachments = theMessage.getAttachments();
+
+		if (theMessage.getAuthor().getIdLong() == botId) {
+			return;
+		}
 
 		boolean spoilEmbeds = false;
 		final var attachmentList = new ArrayList<String>(theAttachments.size());
@@ -143,6 +147,12 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		}
 	}
 
+	/**
+	 * Checks if a url ends with an executable extension.
+	 *
+	 * @param url The URL to check.
+	 * @return boolean
+	 */
 	boolean isExecutable(String url) {
 		String[] listOfExtensions = {
 			".png"

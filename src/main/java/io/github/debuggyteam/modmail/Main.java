@@ -19,6 +19,7 @@ public final class Main {
 
 	public static JDA client;
 	public static GuildMessageChannel targetChannel;
+	public static long botId;
 
 	static {
 		Objects.requireNonNull(token, "Set environment __DEBUGGY_MODMAIL_TOKEN to your bot's token.");
@@ -36,6 +37,7 @@ public final class Main {
 		client = builder.build().awaitReady();
 
 		targetChannel = client.getTextChannelById(channel);
+		botId = client.getSelfUser().getIdLong();
 
 		if (targetChannel == null) {
 			System.err.println("""

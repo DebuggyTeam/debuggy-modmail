@@ -51,7 +51,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 				targetChannel.sendMessageEmbeds(theEmbed.build()).queue();
 
 				theEmbed.clear();
-				createCommonEmbed(theEmbed, theUser, "Your latest message contains one or more executable files. Please do not send executables in modmail.", 16711680);
+				createGuildEmbed(theEmbed, guild, "Your latest message contains one or more executable files. Please do not send executables in modmail.", 16711680);
 				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
 
 			}
@@ -159,6 +159,12 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 
 	void createCommonEmbed(EmbedBuilder embed, User user, String description, int color) {
 		embed.setAuthor(user.getName(), user.getAvatarUrl(), user.getAvatarUrl());
+		embed.setDescription(description);
+		embed.setColor(color);
+	}
+
+	void createGuildEmbed(EmbedBuilder embed, Guild guild, String description, int color) {
+		embed.setAuthor(guild.getName(), guild.getIconUrl(), guild.getIconUrl());
 		embed.setDescription(description);
 		embed.setColor(color);
 	}

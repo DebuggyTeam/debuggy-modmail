@@ -1,7 +1,9 @@
 package io.github.debuggyteam.modmail;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -10,8 +12,11 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.github.debuggyteam.modmail.Main.targetChannel;
+
 /**
  * @author woodiertexas
+ * @author Ampflower
  * @since ${version}
  **/
 public class SomethingAboutMessageEvents extends ListenerAdapter {
@@ -19,7 +24,37 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 	@Override
 	public void onMessageReceived(final MessageReceivedEvent msgEvent) {
 		if (msgEvent.isFromType(ChannelType.PRIVATE)) {
-			handleMessage(msgEvent, Main.targetChannel);
+			final Message theMessage = msgEvent.getMessage();
+			String executableUrl = "";
+			boolean executableFound = false;
+
+			for (int i = 0; i < theMessage.getAttachments().size(); i++) {
+
+				if (isExecutable(theMessage.getAttachments().get(i).getUrl())) {
+					executableFound = true;
+					executableUrl = theMessage.getAttachments().get(i).getUrl();
+					break;
+				}
+			}
+
+			if (!executableFound) {
+				handleMessage(msgEvent, targetChannel);
+			}
+
+			if (executableFound) {
+				final EmbedBuilder theEmbed = new EmbedBuilder();
+				final Guild guild = targetChannel.getGuild();
+				final User theUser = msgEvent.getMessage().getAuthor();
+
+				createCommonEmbed(theEmbed, theUser, theMessage.getContentRaw(), 16711680);
+				theEmbed.addField("Executable link found:", executableUrl, false);
+				targetChannel.sendMessageEmbeds(theEmbed.build()).queue();
+
+				theEmbed.clear();
+				createCommonEmbed(theEmbed, theUser, "Your latest message contains one or more executable files. Please do not send executables in modmail.", 16711680);
+				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
+
+			}
 		}
 	}
 
@@ -32,8 +67,8 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 	private static void handleMessage(MessageReceivedEvent msgEvent, MessageChannel targetChannel) {
 		final EmbedBuilder theEmbed = new EmbedBuilder();
 
-		final var theMessage = msgEvent.getMessage();
-		final var theUser = msgEvent.getMessage().getAuthor();
+		final Message theMessage = msgEvent.getMessage();
+		final User theUser = msgEvent.getMessage().getAuthor();
 		final List<Message.Attachment> theAttachments = theMessage.getAttachments();
 
 		boolean spoilEmbeds = false;
@@ -106,5 +141,25 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		} else {
 			attachmentList.add(attachment.getUrl());
 		}
+	}
+
+	boolean isExecutable(String url) {
+		String[] listOfExtensions = {
+			".png"
+			//".sh", ".exe", ".scr", ".bat", ".vsb", ".cmd"
+		};
+
+		for (String extension : listOfExtensions) {
+			if (url.endsWith(extension)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void createCommonEmbed(EmbedBuilder embed, User user, String description, int color) {
+		embed.setAuthor(user.getName(), user.getAvatarUrl(), user.getAvatarUrl());
+		embed.setDescription(description);
+		embed.setColor(color);
 	}
 }

@@ -3,7 +3,9 @@ package io.github.debuggyteam.modmail;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -32,7 +34,7 @@ public final class Main {
 			.setActivity(Activity.of(Activity.ActivityType.WATCHING, "for your DMs!"))
 			// Even though createLight should already disallow these, I'm putting these here anyways.
 			.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS)
-			.addEventListeners(new SomethingAboutMessageEvents());
+			.addEventListeners(new SomethingAboutMessageEvents(), new TestCommand());
 
 		client = builder.build().awaitReady();
 
@@ -47,5 +49,11 @@ public final class Main {
 
 			System.exit(1);
 		}
+
+		Guild debuggyCord = client.getGuildById(912349224232943649L);
+
+		Objects.requireNonNull(debuggyCord).updateCommands().addCommands(
+			Commands.slash("test", "make a test embed")
+		).queue();
 	}
 }

@@ -25,9 +25,17 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 	public void onMessageReceived(final MessageReceivedEvent msgEvent) {
 		if (msgEvent.isFromType(ChannelType.PRIVATE)) {
 			final Message theMessage = msgEvent.getMessage();
-			List<String> executableUrls = new ArrayList<>();
+			final EmbedBuilder theEmbed = new EmbedBuilder();
+			final Guild guild = targetChannel.getGuild();
+			final User theUser = msgEvent.getMessage().getAuthor();
+			//List<String> executableUrls = new ArrayList<>();
 			boolean executableFound = false;
 
+			if (theMessage.getAuthor().isBot()) {
+				return;
+			}
+
+			/*
 			for (int i = 0; i < theMessage.getAttachments().size(); i++) {
 
 				if (isExecutable(theMessage.getAttachments().get(i).getUrl())) {
@@ -35,16 +43,16 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 					executableUrls.add(theMessage.getAttachments().get(i).getUrl());
 				}
 			}
+			 */
 
 			if (!executableFound) {
-				handleMessage(msgEvent, targetChannel);
+				createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Would you like to create a modmail thread?", 0);
+				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
+				//handleMessage(msgEvent, targetChannel);
 			}
 
+			/*
 			if (executableFound) {
-				final EmbedBuilder theEmbed = new EmbedBuilder();
-				final Guild guild = targetChannel.getGuild();
-				final User theUser = msgEvent.getMessage().getAuthor();
-
 				createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), theMessage.getContentRaw(), 16711680);
 				theEmbed.addField("Executable link(s) found:", String.valueOf(executableUrls), false);
 				targetChannel.sendMessageEmbeds(theEmbed.build()).queue();
@@ -54,6 +62,8 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
 
 			}
+
+			 */
 		}
 	}
 

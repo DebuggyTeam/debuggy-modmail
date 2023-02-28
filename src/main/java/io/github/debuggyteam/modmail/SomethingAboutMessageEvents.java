@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -28,14 +29,13 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 			final EmbedBuilder theEmbed = new EmbedBuilder();
 			final Guild guild = targetChannel.getGuild();
 			final User theUser = msgEvent.getMessage().getAuthor();
-			//List<String> executableUrls = new ArrayList<>();
+			List<String> executableUrls = new ArrayList<>();
 			boolean executableFound = false;
 
 			if (theMessage.getAuthor().isBot()) {
 				return;
 			}
 
-			/*
 			for (int i = 0; i < theMessage.getAttachments().size(); i++) {
 
 				if (isExecutable(theMessage.getAttachments().get(i).getUrl())) {
@@ -43,15 +43,32 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 					executableUrls.add(theMessage.getAttachments().get(i).getUrl());
 				}
 			}
-			 */
 
 			if (!executableFound) {
-				createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Would you like to create a modmail thread?", 0);
-				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
+				boolean doesThreadExist = false;
+				MessageChannel theThread;
+				//createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Would you like to create a modmail thread?", 0);
+				//theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
 				//handleMessage(msgEvent, targetChannel);
+
+				if (!doesThreadExist) {
+					createCommonEmbed(theEmbed, theUser.getAsTag(), theUser.getAvatarUrl(), theUser.getAsMention() + " registered their account <t:" + theUser.getTimeCreated().toEpochSecond() + ":R>", 0);
+					theEmbed.addField("Registered @", "<t:" + theUser.getTimeCreated().toEpochSecond() + ">", true);
+					theEmbed.addField("User ID", theUser.getId(), true);
+
+					targetChannel.sendMessageEmbeds(theEmbed.build()).queue(message -> {
+						message.getChannel().asTextChannel().createThreadChannel(theUser.getName() + "'s thread", message.getId()).queue(threadChannel -> {
+							theThread = threadChannel.getIdLong();
+						});
+					});
+
+					doesThreadExist = true;
+				} else {
+					handleMessage(msgEvent, theThread);
+
+				}
 			}
 
-			/*
 			if (executableFound) {
 				createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), theMessage.getContentRaw(), 16711680);
 				theEmbed.addField("Executable link(s) found:", String.valueOf(executableUrls), false);
@@ -62,8 +79,6 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
 
 			}
-
-			 */
 		}
 	}
 

@@ -58,7 +58,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 
 					targetChannel.sendMessageEmbeds(theEmbed.build()).queue(message -> {
 						message.getChannel().asTextChannel().createThreadChannel(theUser.getName() + "'s thread", message.getId()).queue(threadChannel -> {
-							//theThread = threadChannel.getIdLong();
+							theThread = threadChannel.getIdLong();
 						});
 					});
 

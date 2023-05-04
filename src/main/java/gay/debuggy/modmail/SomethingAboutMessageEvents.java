@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -117,17 +118,22 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 			return;
 		}
 
-		if (theMessage.getChannel() != targetChannel && !theMessage.getContentRaw().contains("re: ")) {
-			return;
-		}
-
 		boolean spoilEmbeds = false;
 		final var attachmentList = new ArrayList<String>(theAttachments.size());
 
 		//theMessage.addReaction(Objects.requireNonNull(client.getEmojiById(1097391615661838488L))).queue();
 		theEmbed.setAuthor(theUser.getName(), theUser.getAvatarUrl(), theUser.getAvatarUrl());
 		theEmbed.setFooter(theUser.getId() + " • Staff");
-		theEmbed.setDescription(theMessage.getContentRaw().substring(4));
+
+		if (msgEvent.getChannel() instanceof ThreadChannel) {
+			if (theMessage.getContentRaw().startsWith("re: ")) {
+				theEmbed.setDescription(theMessage.getContentRaw().substring(4));
+			} else {
+				return;
+			}
+		} else {
+			theEmbed.setDescription(theMessage.getContentRaw());
+		}
 
 		final var itr = theAttachments.iterator();
 

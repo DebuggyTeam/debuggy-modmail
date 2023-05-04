@@ -52,8 +52,10 @@ public final class Main {
 
 		Guild debuggyCord = client.getGuildById(912349224232943649L);
 
+		/*
 		Objects.requireNonNull(debuggyCord).updateCommands().addCommands(
-			Commands.slash("test", "make a test embed")
+			Commands.slash("r", "reply to a modmail thread")
 		).queue();
+		 */
 	}
 }

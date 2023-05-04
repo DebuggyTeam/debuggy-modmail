@@ -6,14 +6,19 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static gay.debuggy.modmail.Main.*;
@@ -59,7 +64,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 				//handleMessage(msgEvent, targetChannel);
 
 				if (!doesThreadExist) {
-					createCommonEmbed(theEmbed, theUser.getAsTag(), theUser.getAvatarUrl(), theUser.getAsMention() + " registered their account <t:" + theUser.getTimeCreated().toEpochSecond() + ":R>", 0);
+					createCommonEmbed(theEmbed, theUser.getAsTag(), theUser.getAvatarUrl(), theUser.getAsMention() + " registered their account <t:" + theUser.getTimeCreated().toEpochSecond() + ":R>", 0x000000);
 					theEmbed.addField("Registered @", "<t:" + theUser.getTimeCreated().toEpochSecond() + ">", true);
 					theEmbed.addField("User ID", theUser.getId(), true);
 
@@ -68,18 +73,20 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 							modmailThread.put(theUser.getIdLong(), threadChannel.getIdLong());
 							threadToUser.put(threadChannel.getIdLong(), msgEvent.getChannel());
 							handleMessage(msgEvent, threadChannel);
+
+							threadChannel.sendMessage("<@&931245994128048191> <:yeefpineapple:1096590659814686720>").queue();
 						});
 					});
 				} else {
 					handleMessage(msgEvent, client.getThreadChannelById(modmailThread.get(theUser.getIdLong())));
 				}
 			} else {
-				createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), theMessage.getContentRaw(), 16711680);
+				createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), theMessage.getContentRaw(), 0xFF0000);
 				theEmbed.addField("Executable link(s) found:", String.valueOf(executableUrls), false);
 				targetChannel.sendMessageEmbeds(theEmbed.build()).queue();
 
 				theEmbed.clear();
-				createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Your latest message contains one or more executable files. Please do not send executables in modmail.", 16711680);
+				createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Your latest message contains one or more executable files. Please do not send executables in modmail.", 0xFF0000);
 				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
 
 			}
@@ -110,12 +117,17 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 			return;
 		}
 
+		if (theMessage.getChannel() != targetChannel && !theMessage.getContentRaw().contains("re: ")) {
+			return;
+		}
+
 		boolean spoilEmbeds = false;
 		final var attachmentList = new ArrayList<String>(theAttachments.size());
 
+		//theMessage.addReaction(Objects.requireNonNull(client.getEmojiById(1097391615661838488L))).queue();
 		theEmbed.setAuthor(theUser.getName(), theUser.getAvatarUrl(), theUser.getAvatarUrl());
-		theEmbed.setFooter(theUser.getId() + " • Community Manager");
-		theEmbed.setDescription(theMessage.getContentRaw());
+		theEmbed.setFooter(theUser.getId() + " • Staff");
+		theEmbed.setDescription(theMessage.getContentRaw().substring(4));
 
 		final var itr = theAttachments.iterator();
 

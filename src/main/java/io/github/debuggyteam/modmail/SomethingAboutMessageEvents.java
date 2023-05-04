@@ -11,7 +11,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.github.debuggyteam.modmail.Main.*;
 
@@ -30,6 +32,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 			final Guild guild = targetChannel.getGuild();
 			final User theUser = msgEvent.getMessage().getAuthor();
 			List<String> executableUrls = new ArrayList<>();
+			HashMap<Long, Long> modmailThread = new HashMap<>() {};
 			boolean executableFound = false;
 
 			if (theMessage.getAuthor().isBot()) {
@@ -46,7 +49,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 
 			if (!executableFound) {
 				boolean doesThreadExist = false;
-				MessageChannel theThread;
+				final long theThread;
 				//createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Would you like to create a modmail thread?", 0);
 				//theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
 				//handleMessage(msgEvent, targetChannel);
@@ -58,7 +61,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 
 					targetChannel.sendMessageEmbeds(theEmbed.build()).queue(message -> {
 						message.getChannel().asTextChannel().createThreadChannel(theUser.getName() + "'s thread", message.getId()).queue(threadChannel -> {
-							theThread = threadChannel.getIdLong();
+							modmailThread.put(theUser.getIdLong(), threadChannel.getIdLong());
 						});
 					});
 

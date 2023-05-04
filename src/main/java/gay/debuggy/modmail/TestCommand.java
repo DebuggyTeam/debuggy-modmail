@@ -1,4 +1,4 @@
-package io.github.debuggyteam.modmail;
+package gay.debuggy.modmail;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-import static io.github.debuggyteam.modmail.Main.targetChannel;
+import static gay.debuggy.modmail.Main.targetChannel;
 
 public class TestCommand extends ListenerAdapter {
 

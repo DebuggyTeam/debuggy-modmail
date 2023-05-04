@@ -9,7 +9,7 @@ java {
 }
 
 application {
-	mainClass.set("io.github.debuggyteam.modmail.Main")
+	mainClass.set("gay.debuggy.modmail.Main")
 }
 
 repositories {

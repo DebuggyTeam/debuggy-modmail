@@ -1,4 +1,4 @@
-package io.github.debuggyteam.modmail;
+package gay.debuggy.modmail;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;

@@ -1,4 +1,4 @@
-package io.github.debuggyteam.modmail;
+package gay.debuggy.modmail;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -15,7 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.debuggyteam.modmail.Main.*;
+import static gay.debuggy.modmail.Main.botId;
+import static gay.debuggy.modmail.Main.targetChannel;
 
 /**
  * @author woodiertexas

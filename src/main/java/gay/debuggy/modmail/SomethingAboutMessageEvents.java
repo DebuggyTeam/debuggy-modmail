@@ -189,7 +189,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 	 */
 	boolean isExecutable(String url) {
 		String[] listOfExtensions = {
-			".sh", ".exe", ".scr", ".bat", ".vsb", ".cmd"
+			".sh", ".exe", ".scr", ".bat", ".vbs", ".cmd", ".msi", ".com", ".efi", ".o"
 		};
 
 		for (String extension : listOfExtensions) {

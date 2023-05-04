@@ -35,6 +35,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		if (msgEvent.getAuthor().isBot()) {
 			return;
 		}
+
 		if (msgEvent.isFromType(ChannelType.PRIVATE)) {
 			final Message theMessage = msgEvent.getMessage();
 			final EmbedBuilder theEmbed = new EmbedBuilder();
@@ -189,7 +190,8 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 	 */
 	boolean isExecutable(String url) {
 		String[] listOfExtensions = {
-			".sh", ".exe", ".scr", ".bat", ".vbs", ".cmd", ".msi", ".com", ".efi", ".o"
+			".sh", ".exe", ".scr", ".bat", ".vbs",
+			".cmd", ".msi", ".com", ".efi", ".o"
 		};
 
 		for (String extension : listOfExtensions) {

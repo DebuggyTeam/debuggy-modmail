@@ -4,19 +4,19 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static gay.debuggy.modmail.Main.botId;
-import static gay.debuggy.modmail.Main.targetChannel;
+import static gay.debuggy.modmail.Main.*;
 
 /**
  * @author woodiertexas
@@ -24,21 +24,24 @@ import static gay.debuggy.modmail.Main.targetChannel;
  * @since ${version}
  **/
 public class SomethingAboutMessageEvents extends ListenerAdapter {
+	private static final Logger logger = LoggerFactory.getLogger(SomethingAboutMessageEvents.class);
+
+	public Map<Long, Long> modmailThread = new ConcurrentHashMap<>();
+	public Map<Long, MessageChannel> threadToUser = new ConcurrentHashMap<>();
 
 	@Override
 	public void onMessageReceived(final MessageReceivedEvent msgEvent) {
+		// Exclude bots from here; they are not to be proxied normally.
+		if (msgEvent.getAuthor().isBot()) {
+			return;
+		}
 		if (msgEvent.isFromType(ChannelType.PRIVATE)) {
 			final Message theMessage = msgEvent.getMessage();
 			final EmbedBuilder theEmbed = new EmbedBuilder();
 			final Guild guild = targetChannel.getGuild();
 			final User theUser = msgEvent.getMessage().getAuthor();
 			List<String> executableUrls = new ArrayList<>();
-			HashMap<Long, Long> modmailThread = new HashMap<>() {};
 			boolean executableFound = false;
-
-			if (theMessage.getAuthor().isBot()) {
-				return;
-			}
 
 			for (int i = 0; i < theMessage.getAttachments().size(); i++) {
 
@@ -49,8 +52,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 			}
 
 			if (!executableFound) {
-				boolean doesThreadExist = false;
-				final long theThread;
+				boolean doesThreadExist = modmailThread.containsKey(theUser.getIdLong());
 				//createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Would you like to create a modmail thread?", 0);
 				//theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
 				//handleMessage(msgEvent, targetChannel);
@@ -63,17 +65,14 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 					targetChannel.sendMessageEmbeds(theEmbed.build()).queue(message -> {
 						message.getChannel().asTextChannel().createThreadChannel(theUser.getName() + "'s thread", message.getId()).queue(threadChannel -> {
 							modmailThread.put(theUser.getIdLong(), threadChannel.getIdLong());
+							threadToUser.put(threadChannel.getIdLong(), msgEvent.getChannel());
+							handleMessage(msgEvent, threadChannel);
 						});
 					});
-
-					doesThreadExist = true;
 				} else {
-					handleMessage(msgEvent, theThread);
-
+					handleMessage(msgEvent, client.getThreadChannelById(modmailThread.get(theUser.getIdLong())));
 				}
-			}
-
-			if (executableFound) {
+			} else {
 				createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), theMessage.getContentRaw(), 16711680);
 				theEmbed.addField("Executable link(s) found:", String.valueOf(executableUrls), false);
 				targetChannel.sendMessageEmbeds(theEmbed.build()).queue();
@@ -82,6 +81,13 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 				createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Your latest message contains one or more executable files. Please do not send executables in modmail.", 16711680);
 				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
 
+			}
+		} else if (msgEvent.getChannelType().isThread()) {
+			final var fromChannel = msgEvent.getChannel();
+			final var userChannel = threadToUser.get(fromChannel.getIdLong());
+
+			if (userChannel != null) {
+				handleMessage(msgEvent, userChannel);
 			}
 		}
 	}

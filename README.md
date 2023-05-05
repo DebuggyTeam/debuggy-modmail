@@ -1,3 +1,5 @@
+<a href="https://debuggy.gay/discord"><img src="https://cdn.jsdelivr.net/gh/intergrav/devins-badges/assets/cozy/social/discord-plural_vector.svg" alt="Join Debuggycord on Discord!" height=64></a>
+
 # About
 Debuggy Modmail is a bot for Discord that allows people to contact community staff members without DMing an individual staff member or pinging them in a public chat.
 

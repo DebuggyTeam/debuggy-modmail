@@ -60,9 +60,9 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 
 			if (!executableFound) {
 				boolean doesThreadExist = modmailThread.containsKey(theUser.getIdLong());
-				//createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Would you like to create a modmail thread?", 0);
-				//theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
-				//handleMessage(msgEvent, targetChannel);
+				// ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Would you like to create a modmail thread?", 0);
+				// theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
+				// handleMessage(msgEvent, targetChannel);
 
 				if (!doesThreadExist) {
 					ModmailCommon.createCommonEmbed(theEmbed, theUser.getAsTag(), theUser.getAvatarUrl(), theUser.getAsMention() + " registered their account <t:" + theUser.getTimeCreated().toEpochSecond() + ":R>", 0x000000);
@@ -97,6 +97,26 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 
 			if (userChannel != null) {
 				handleMessage(msgEvent, userChannel);
+			}
+		}
+	}
+
+	@Override
+	public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent slashEvent) {
+		final Guild guild = targetChannel.getGuild();
+		final EmbedBuilder theEmbed = new EmbedBuilder();
+		final User theUser = slashEvent.getUser();
+		final MessageChannel theChannel = slashEvent.getMessageChannel();
+
+		if (slashEvent.getName().equals("close")) {
+			if (slashEvent.getChannel() instanceof ThreadChannel) {
+				ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Do you want to close this thread?", 0x000000);
+				theChannel.sendMessageEmbeds(theEmbed.build()).queue();
+
+				modmailThread.remove(theUser.getIdLong(), theChannel.getIdLong());
+				threadToUser.remove(theChannel.getIdLong(), slashEvent.getChannel());
+			} else {
+				theChannel.sendMessage("<:yeefpineapple:1096590659814686720>").queue();
 			}
 		}
 	}

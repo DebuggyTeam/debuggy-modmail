@@ -52,10 +52,10 @@ public final class Main {
 
 		Guild debuggyCord = client.getGuildById(912349224232943649L);
 
-		/*
+
 		Objects.requireNonNull(debuggyCord).updateCommands().addCommands(
-			Commands.slash("r", "reply to a modmail thread")
+			Commands.slash("close", "close a modmail thread")
 		).queue();
-		 */
+
 	}
 }

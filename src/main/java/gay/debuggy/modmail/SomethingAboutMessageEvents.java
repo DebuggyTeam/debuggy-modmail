@@ -9,9 +9,11 @@ import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +88,8 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 				theEmbed.addField("Executable link(s) found:", String.valueOf(executableUrls), false);
 				targetChannel.sendMessageEmbeds(theEmbed.build()).queue();
 
+
+
 				theEmbed.clear();
 				ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Your latest message contains one or more executable files. Please do not send executables in modmail.", 0xFF0000);
 				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
@@ -111,13 +115,25 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		if (slashEvent.getName().equals("close")) {
 			if (slashEvent.getChannel() instanceof ThreadChannel) {
 				ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Do you want to close this thread?", 0x000000);
-				theChannel.sendMessageEmbeds(theEmbed.build()).queue();
-
-				modmailThread.remove(theUser.getIdLong(), theChannel.getIdLong());
-				threadToUser.remove(theChannel.getIdLong(), slashEvent.getChannel());
+				theChannel.sendMessageEmbeds(theEmbed.build()).addActionRow(
+					Button.primary("yes", "Yes"),
+					Button.primary("no", "No")
+				).queue();
 			} else {
 				theChannel.sendMessage("<:yeefpineapple:1096590659814686720>").queue();
 			}
+		}
+	}
+
+	@Override
+	public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
+		final MessageChannel theChannel = buttonEvent.getMessageChannel();
+		if (buttonEvent.getComponentId().equals("yes")) {
+			modmailThread.remove(theChannel.getIdLong());
+			threadToUser.remove(theChannel.getIdLong());
+			buttonEvent.editMessage("thread closed").queue();
+		} else if (buttonEvent.getComponentId().equals("no")) {
+			buttonEvent.editMessage("thread stays open").queue();
 		}
 	}
 

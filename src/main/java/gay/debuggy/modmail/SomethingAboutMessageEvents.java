@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -129,8 +130,15 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 	public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
 		final MessageChannel theChannel = buttonEvent.getMessageChannel();
 		if (buttonEvent.getComponentId().equals("yes")) {
-			modmailThread.remove(theChannel.getIdLong());
-			threadToUser.remove(theChannel.getIdLong());
+			for (Map.Entry<Long, Long> entry : modmailThread.entrySet()) {
+				Long userId = entry.getKey();
+				Long threadId = entry.getValue();
+
+				if (threadId.equals(theChannel.getIdLong())) {
+					modmailThread.remove(userId, threadId);
+					threadToUser.remove(threadId);
+				}
+			}
 			buttonEvent.editMessage("thread closed").queue();
 		} else if (buttonEvent.getComponentId().equals("no")) {
 			buttonEvent.editMessage("thread stays open").queue();

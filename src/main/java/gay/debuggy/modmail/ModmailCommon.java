@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 public class ModmailCommon {
 	// Constants
 	static final String whiteCheckMark = "U+2705";
+	static final int alertRed = 0xFF0000;
+	static final int lightGreen = 0x2ac48e;
 
 
 	/**

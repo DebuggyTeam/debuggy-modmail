@@ -21,10 +21,11 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static gay.debuggy.modmail.Main.*;
+import static gay.debuggy.modmail.Main.botId;
+import static gay.debuggy.modmail.Main.client;
+import static gay.debuggy.modmail.Main.targetChannel;
 
 /**
  * @author woodiertexas
@@ -67,7 +68,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 				// handleMessage(msgEvent, targetChannel);
 
 				if (!doesThreadExist) {
-					ModmailCommon.createCommonEmbed(theEmbed, theUser.getAsTag(), theUser.getAvatarUrl(), theUser.getAsMention() + " registered their account <t:" + theUser.getTimeCreated().toEpochSecond() + ":R>", 0x000000);
+					ModmailCommon.createCommonEmbed(theEmbed, theUser.getAsTag(), theUser.getAvatarUrl(), theUser.getAsMention() + " registered their account <t:" + theUser.getTimeCreated().toEpochSecond() + ":R>", ModmailCommon.lightGreen);
 					theEmbed.addField("Registered @", "<t:" + theUser.getTimeCreated().toEpochSecond() + ">", true);
 					theEmbed.addField("User ID", theUser.getId(), true);
 
@@ -84,12 +85,12 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 					handleMessage(msgEvent, client.getThreadChannelById(modmailThread.get(theUser.getIdLong())));
 				}
 			} else {
-				ModmailCommon.createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), theMessage.getContentRaw(), 0xFF0000);
+				ModmailCommon.createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), theMessage.getContentRaw(), ModmailCommon.alertRed);
 				theEmbed.addField("Executable link(s) found:", String.valueOf(executableUrls), false);
 				targetChannel.sendMessageEmbeds(theEmbed.build()).queue();
 
 				theEmbed.clear();
-				ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Your latest message contains one or more executable files. Please do not send executables in modmail.", 0xFF0000);
+				ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Your latest message contains one or more executable files. Please do not send executables in modmail.", ModmailCommon.alertRed);
 				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
 			}
 		} else if (msgEvent.getChannelType().isThread()) {
@@ -102,6 +103,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		}
 	}
 
+	// Detect edited messages and relay them to the modmail thread.
 	@Override
 	public void onMessageUpdate(MessageUpdateEvent messageEditEvent) {
 		final Message theMessage = messageEditEvent.getMessage();
@@ -115,7 +117,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 
 			}
 
-			ModmailCommon.createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), "Edited message: " + theMessage.getContentRaw(), 0x000000);
+			ModmailCommon.createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), "Edited message: " + theMessage.getContentRaw(), ModmailCommon.lightGreen);
 			theEmbed.addField("User ID", theUser.getId(), true);
 			assert theThread != null;
 			theThread.sendMessageEmbeds(theEmbed.build()).queue();
@@ -126,12 +128,11 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 	public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent slashEvent) {
 		final Guild guild = targetChannel.getGuild();
 		final EmbedBuilder theEmbed = new EmbedBuilder();
-		final User theUser = slashEvent.getUser();
 		final MessageChannel theChannel = slashEvent.getMessageChannel();
 
 		if (slashEvent.getName().equals("close")) {
 			if (slashEvent.getChannel() instanceof ThreadChannel) {
-				ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Do you want to close this thread?", 0x000000);
+				ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Do you want to close this thread?", ModmailCommon.lightGreen);
 				slashEvent.replyEmbeds(theEmbed.build()).addActionRow(
 					Button.primary("yes", "Yes"),
 					Button.primary("no", "No")
@@ -168,10 +169,10 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 						guild.getName(),
 						guild.getIconUrl(),
 						buttonEvent.getUser().getName() + " has closed this thread.",
-						0x000000
+						ModmailCommon.lightGreen
 					);
 
-					theEmbed.addField("User ID", buttonEvent.getUser().getId(), true);
+					theEmbed.setFooter(buttonEvent.getUser().getId() + " • Staff");
 					theThread.sendMessageEmbeds(theEmbed.build()).queue(message -> {
 						theThread.getManager().setArchived(true).queue();
 					});
@@ -212,12 +213,14 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		if (msgEvent.getChannel() instanceof ThreadChannel) {
 			if (theMessage.getContentRaw().startsWith("re: ")) {
 				theEmbed.setDescription(theMessage.getContentRaw().substring(4));
+				theEmbed.setColor(ModmailCommon.lightGreen);
 				theMessage.addReaction(Emoji.fromUnicode(ModmailCommon.whiteCheckMark)).queue();
 			} else {
 				return;
 			}
 		} else {
 			theEmbed.setDescription(theMessage.getContentRaw());
+			theEmbed.setColor(ModmailCommon.lightGreen);
 			theMessage.addReaction(Emoji.fromUnicode(ModmailCommon.whiteCheckMark)).queue();
 		}
 

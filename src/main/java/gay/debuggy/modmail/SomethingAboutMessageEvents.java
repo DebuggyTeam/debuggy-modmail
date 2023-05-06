@@ -1,6 +1,7 @@
 package gay.debuggy.modmail;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -15,6 +16,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,12 +92,9 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 				theEmbed.addField("Executable link(s) found:", String.valueOf(executableUrls), false);
 				targetChannel.sendMessageEmbeds(theEmbed.build()).queue();
 
-
-
 				theEmbed.clear();
 				ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Your latest message contains one or more executable files. Please do not send executables in modmail.", 0xFF0000);
 				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
-
 			}
 		} else if (msgEvent.getChannelType().isThread()) {
 			final var fromChannel = msgEvent.getChannel();
@@ -117,10 +116,10 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		if (slashEvent.getName().equals("close")) {
 			if (slashEvent.getChannel() instanceof ThreadChannel) {
 				ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Do you want to close this thread?", 0x000000);
-				theChannel.sendMessageEmbeds(theEmbed.build()).addActionRow(
+				slashEvent.replyEmbeds(theEmbed.build()).addActionRow(
 					Button.primary("yes", "Yes"),
 					Button.primary("no", "No")
-				).queue();
+				).setEphemeral(true).queue();
 			} else {
 				theChannel.sendMessage("<:yeefpineapple:1096590659814686720>").queue();
 			}
@@ -129,13 +128,39 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 
 	@Override
 	public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
+		final Guild guild = targetChannel.getGuild();
+		final EmbedBuilder theEmbed = new EmbedBuilder();
 		final MessageChannel theChannel = buttonEvent.getMessageChannel();
+
 		if (buttonEvent.getComponentId().equals("yes")) {
 			for (Map.Entry<Long, Long> entry : modmailThread.entrySet()) {
 				Long userId = entry.getKey();
 				Long threadId = entry.getValue();
+				if (threadId != null && threadId.equals(theChannel.getIdLong())) {
+					ThreadChannel theThread = client.getThreadChannelById(threadId);
 
-				if (threadId.equals(theChannel.getIdLong())) {
+					// DM the modmail thread owner.... somehow
+
+					assert theThread != null;
+					theThread.retrieveParentMessage().queue(message -> {
+						message.editMessage("This thread is now closed.").queue();
+					});
+
+					// Send a "thread closed" message in the thread itself.
+					ModmailCommon.createCommonEmbed(
+						theEmbed,
+						guild.getName(),
+						guild.getIconUrl(),
+						buttonEvent.getUser().getName() + " has closed this thread.",
+						0x000000
+					);
+
+					theEmbed.addField("User ID", buttonEvent.getUser().getId(), true);
+					theThread.sendMessageEmbeds(theEmbed.build()).queue(message -> {
+						theThread.getManager().setArchived(true).queue();
+					});
+
+					// Finally remove the modmail thread from the hashmaps.
 					modmailThread.remove(userId, threadId);
 					threadToUser.remove(threadId);
 				}
@@ -154,7 +179,6 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 	 */
 	private static void handleMessage(MessageReceivedEvent msgEvent, MessageChannel targetChannel) {
 		final EmbedBuilder theEmbed = new EmbedBuilder();
-
 		final Message theMessage = msgEvent.getMessage();
 		final User theUser = msgEvent.getMessage().getAuthor();
 		final List<Message.Attachment> theAttachments = theMessage.getAttachments();
@@ -166,7 +190,6 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		boolean spoilEmbeds = false;
 		final var attachmentList = new ArrayList<String>(theAttachments.size());
 
-		//theMessage.addReaction(Objects.requireNonNull(client.getEmojiById(1097391615661838488L))).queue();
 		theEmbed.setAuthor(theUser.getName(), theUser.getAvatarUrl(), theUser.getAvatarUrl());
 		theEmbed.setFooter(theUser.getId() + " • Staff");
 

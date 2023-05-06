@@ -1,7 +1,6 @@
 package gay.debuggy.modmail;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -9,20 +8,17 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -103,6 +99,26 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 			if (userChannel != null) {
 				handleMessage(msgEvent, userChannel);
 			}
+		}
+	}
+
+	@Override
+	public void onMessageUpdate(MessageUpdateEvent messageEditEvent) {
+		final Message theMessage = messageEditEvent.getMessage();
+		final User theUser = messageEditEvent.getMessage().getAuthor();
+		final EmbedBuilder theEmbed = new EmbedBuilder();
+
+		if (messageEditEvent.isFromType(ChannelType.PRIVATE)) {
+			ThreadChannel theThread = null;
+			for (Long threadId : modmailThread.values()) {
+				theThread = client.getThreadChannelById(threadId);
+
+			}
+
+			ModmailCommon.createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), "Edited message: " + theMessage.getContentRaw(), 0x000000);
+			theEmbed.addField("User ID", theUser.getId(), true);
+			assert theThread != null;
+			theThread.sendMessageEmbeds(theEmbed.build()).queue();
 		}
 	}
 

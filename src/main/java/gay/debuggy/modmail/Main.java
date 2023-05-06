@@ -57,6 +57,5 @@ public final class Main {
 		Objects.requireNonNull(debuggyCord).updateCommands().addCommands(
 			Commands.slash("close", "close a modmail thread")
 		).queue();
-
 	}
 }

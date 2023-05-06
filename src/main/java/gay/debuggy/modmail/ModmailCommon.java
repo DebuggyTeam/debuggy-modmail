@@ -3,6 +3,10 @@ package gay.debuggy.modmail;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class ModmailCommon {
+	// Constants
+	static final String whiteCheckMark = "U+2705";
+
+
 	/**
 	 * Checks if a url ends with an executable extension.
 	 *

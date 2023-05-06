@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -172,11 +173,13 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 		if (msgEvent.getChannel() instanceof ThreadChannel) {
 			if (theMessage.getContentRaw().startsWith("re: ")) {
 				theEmbed.setDescription(theMessage.getContentRaw().substring(4));
+				theMessage.addReaction(Emoji.fromUnicode(ModmailCommon.whiteCheckMark)).queue();
 			} else {
 				return;
 			}
 		} else {
 			theEmbed.setDescription(theMessage.getContentRaw());
+			theMessage.addReaction(Emoji.fromUnicode(ModmailCommon.whiteCheckMark)).queue();
 		}
 
 		final var itr = theAttachments.iterator();

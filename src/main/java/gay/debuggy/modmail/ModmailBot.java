@@ -61,7 +61,7 @@ public class ModmailBot extends ListenerAdapter {
 			// Scan for threats
 			List<String> harmfulUrls = new ArrayList<>();
 			boolean threatFound = false;
-
+			
 			for (int i = 0; i < message.getAttachments().size(); i++) {
 				if (ModmailCommon.isHarmful(message.getAttachments().get(i).getUrl())) {
 					threatFound = true;
@@ -71,14 +71,14 @@ public class ModmailBot extends ListenerAdapter {
 			
 			if (threatFound) {
 				
-				//Notify mods
+				// Notify mods
 				MessageEmbed modmailThreadMessage = ModmailCommon.createEmbedBuilder(sender)
 						.addField("Potentially harmful link(s) found:", "`" + String.valueOf(harmfulUrls) + "`", false)
 						.appendDescription(message.getContentRaw())
 						.setColor(ModmailCommon.alertRed)
 						.build();
 				
-				//Send the notice to the modmail channel if applicable, otherwise to the bot channel
+				// Send the notice to the modmail channel if applicable, otherwise to the bot channel
 				ThreadChannel modmailChannel = getModmailThread(sender);
 				if (modmailChannel!=null) {
 					modmailChannel.sendMessageEmbeds(modmailThreadMessage).queue();
@@ -86,7 +86,7 @@ public class ModmailBot extends ListenerAdapter {
 					targetChannel.sendMessageEmbeds(modmailThreadMessage).queue();
 				}
 				
-				//Notify sender
+				// Notify sender
 				MessageEmbed replyMessage = ModmailCommon.createEmbedBuilder(targetChannel.getGuild())
 						.appendDescription("Your latest message contains one or more potentially harmful files. Please do not send executables in modmail.")
 						.setColor(ModmailCommon.alertRed)
@@ -102,7 +102,7 @@ public class ModmailBot extends ListenerAdapter {
 			ThreadChannel modmailThread = getModmailThread(sender);
 			
 			if (modmailThread == null) {
-				//This is a new thread.
+				// This is a new thread.
 				/*
 				MessageEmbed embed = ModmailCommon.createEmbedBuilder(targetChannel.getGuild())
 					.appendDescription("Would you like to create a modmail thread?")
@@ -112,7 +112,7 @@ public class ModmailBot extends ListenerAdapter {
 				message.getChannel().sendMessageEmbeds(embed).queue();
 				*/
 				
-				//Create the new thread and update the maps
+				// Create the new thread and update the maps
 				
 				MessageEmbed embed = ModmailCommon.createEmbedBuilder(sender).build();
 				targetChannel.sendMessageEmbeds(embed).queue(threadParent -> {
@@ -121,14 +121,14 @@ public class ModmailBot extends ListenerAdapter {
 							.createThreadChannel(sender.getName()+"'s thread", threadParent.getId())
 							.queue(threadChannel -> {
 								
-								//Log the new stuff
+								// Log the new stuff
 								this.modmailThread.put(sender.getIdLong(), threadChannel.getIdLong());
 								threadToUser.put(threadChannel.getIdLong(), msgEvent.getChannel().asPrivateChannel());
 								
-								//Proxy the message into the new thread
+								// Proxy the message into the new thread
 								handleMessage(msgEvent, threadChannel);
 								
-								//Pineapple
+								// Pineapple
 								threadChannel.sendMessage("<@&931245994128048191> <:yeefpineapple:1096590659814686720>").queue();
 							});
 					} else {
@@ -138,7 +138,7 @@ public class ModmailBot extends ListenerAdapter {
 				});
 				
 			} else {
-				//Just proxy the message
+				// Just proxy the message
 				
 				handleMessage(msgEvent, modmailThread);
 			}
@@ -160,7 +160,7 @@ public class ModmailBot extends ListenerAdapter {
 		final User theUser = messageEditEvent.getMessage().getAuthor();
 
 		if (messageEditEvent.isFromType(ChannelType.PRIVATE)) {
-			//Find the modmail thread
+			// Find the modmail thread
 			ThreadChannel modmailThread = getModmailThread(theUser);
 			
 			if (modmailThread == null) {
@@ -168,11 +168,11 @@ public class ModmailBot extends ListenerAdapter {
 				return;
 				
 			} else {
-				//Create the embed
+				// Create the embed
 				EmbedBuilder embedBuilder = ModmailCommon.createEmbedBuilder(theUser)
 						.appendDescription("Edited message: " + theMessage.getContentRaw());
 				
-				//Send it!
+				// Send it!
 				modmailThread.sendMessageEmbeds(embedBuilder.build()).queue();
 			}
 		}
@@ -350,7 +350,7 @@ public class ModmailBot extends ListenerAdapter {
 		if (threadId == null) return null;
 		
 		@Nullable final ThreadChannel modmailThread = client.getThreadChannelById(threadId);
-		return modmailThread; //May also be null
+		return modmailThread; // May also be null
 	}
 	
 	private static void appendAttachment(List<String> attachmentList, Message.Attachment attachment) {

@@ -48,14 +48,13 @@ public class ModmailBot extends ListenerAdapter {
 
 		if (msgEvent.isFromType(ChannelType.PRIVATE)) {
 			final Message theMessage = msgEvent.getMessage();
-			final EmbedBuilder theEmbed = new EmbedBuilder();
+			final EmbedBuilder embedBuilder = new EmbedBuilder();
 			final Guild guild = targetChannel.getGuild();
 			final User theUser = msgEvent.getMessage().getAuthor();
 			List<String> executableUrls = new ArrayList<>();
 			boolean executableFound = false;
 
 			for (int i = 0; i < theMessage.getAttachments().size(); i++) {
-
 				if (ModmailCommon.isExecutable(theMessage.getAttachments().get(i).getUrl())) {
 					executableFound = true;
 					executableUrls.add(theMessage.getAttachments().get(i).getUrl());
@@ -64,16 +63,16 @@ public class ModmailBot extends ListenerAdapter {
 
 			if (!executableFound) {
 				boolean doesThreadExist = modmailThread.containsKey(theUser.getIdLong());
-				// ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Would you like to create a modmail thread?", 0);
-				// theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
+				// ModmailCommon.createCommonEmbed(embedBuilder, guild.getName(), guild.getIconUrl(), "Would you like to create a modmail thread?", 0);
+				// theMessage.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
 				// handleMessage(msgEvent, targetChannel);
 
 				if (!doesThreadExist) {
-					ModmailCommon.createCommonEmbed(theEmbed, theUser.getAsTag(), theUser.getAvatarUrl(), theUser.getAsMention() + " registered their account <t:" + theUser.getTimeCreated().toEpochSecond() + ":R>", ModmailCommon.lightGreen);
-					theEmbed.addField("Registered @", "<t:" + theUser.getTimeCreated().toEpochSecond() + ">", true);
-					theEmbed.addField("User ID", theUser.getId(), true);
+					ModmailCommon.createCommonEmbed(embedBuilder, theUser.getAsTag(), theUser.getAvatarUrl(), theUser.getAsMention() + " registered their account <t:" + theUser.getTimeCreated().toEpochSecond() + ":R>", ModmailCommon.lightGreen);
+					embedBuilder.addField("Registered @", "<t:" + theUser.getTimeCreated().toEpochSecond() + ">", true);
+					embedBuilder.addField("User ID", theUser.getId(), true);
 
-					targetChannel.sendMessageEmbeds(theEmbed.build()).queue(message -> {
+					targetChannel.sendMessageEmbeds(embedBuilder.build()).queue(message -> {
 						message.getChannel().asTextChannel().createThreadChannel(theUser.getName() + "'s thread", message.getId()).queue(threadChannel -> {
 							modmailThread.put(theUser.getIdLong(), threadChannel.getIdLong());
 							threadToUser.put(threadChannel.getIdLong(), (PrivateChannel) msgEvent.getChannel());
@@ -86,13 +85,13 @@ public class ModmailBot extends ListenerAdapter {
 					handleMessage(msgEvent, client.getThreadChannelById(modmailThread.get(theUser.getIdLong())));
 				}
 			} else {
-				ModmailCommon.createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), theMessage.getContentRaw(), ModmailCommon.alertRed);
-				theEmbed.addField("Executable link(s) found:", String.valueOf(executableUrls), false);
-				targetChannel.sendMessageEmbeds(theEmbed.build()).queue();
+				ModmailCommon.createCommonEmbed(embedBuilder, theUser.getName(), theUser.getAvatarUrl(), theMessage.getContentRaw(), ModmailCommon.alertRed);
+				embedBuilder.addField("Executable link(s) found:", String.valueOf(executableUrls), false);
+				targetChannel.sendMessageEmbeds(embedBuilder.build()).queue();
 
-				theEmbed.clear();
-				ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Your latest message contains one or more executable files. Please do not send executables in modmail.", ModmailCommon.alertRed);
-				theMessage.getChannel().sendMessageEmbeds(theEmbed.build()).queue();
+				embedBuilder.clear();
+				ModmailCommon.createCommonEmbed(embedBuilder, guild.getName(), guild.getIconUrl(), "Your latest message contains one or more executable files. Please do not send executables in modmail.", ModmailCommon.alertRed);
+				theMessage.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
 			}
 		} else if (msgEvent.getChannelType().isThread()) {
 			final var fromChannel = msgEvent.getChannel();
@@ -109,7 +108,7 @@ public class ModmailBot extends ListenerAdapter {
 	public void onMessageUpdate(MessageUpdateEvent messageEditEvent) {
 		final Message theMessage = messageEditEvent.getMessage();
 		final User theUser = messageEditEvent.getMessage().getAuthor();
-		final EmbedBuilder theEmbed = new EmbedBuilder();
+		final EmbedBuilder embedBuilder = new EmbedBuilder();
 
 		if (messageEditEvent.isFromType(ChannelType.PRIVATE)) {
 			ThreadChannel theThread = null;
@@ -117,23 +116,23 @@ public class ModmailBot extends ListenerAdapter {
 				theThread = client.getThreadChannelById(threadId);
 			}
 
-			ModmailCommon.createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), "Edited message: " + theMessage.getContentRaw(), ModmailCommon.lightGreen);
-			theEmbed.addField("User ID", theUser.getId(), true);
+			ModmailCommon.createCommonEmbed(embedBuilder, theUser.getName(), theUser.getAvatarUrl(), "Edited message: " + theMessage.getContentRaw(), ModmailCommon.lightGreen);
+			embedBuilder.addField("User ID", theUser.getId(), true);
 			assert theThread != null;
-			theThread.sendMessageEmbeds(theEmbed.build()).queue();
+			theThread.sendMessageEmbeds(embedBuilder.build()).queue();
 		}
 	}
 
 	@Override
 	public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent slashEvent) {
 		final Guild guild = targetChannel.getGuild();
-		final EmbedBuilder theEmbed = new EmbedBuilder();
+		final EmbedBuilder embedBuilder = new EmbedBuilder();
 		final MessageChannel theChannel = slashEvent.getMessageChannel();
 
 		if (slashEvent.getName().equals("close")) {
 			if (slashEvent.getChannel() instanceof ThreadChannel) {
-				ModmailCommon.createCommonEmbed(theEmbed, guild.getName(), guild.getIconUrl(), "Do you want to close this thread?", ModmailCommon.lightGreen);
-				slashEvent.replyEmbeds(theEmbed.build()).addActionRow(
+				ModmailCommon.createCommonEmbed(embedBuilder, guild.getName(), guild.getIconUrl(), "Do you want to close this thread?", ModmailCommon.lightGreen);
+				slashEvent.replyEmbeds(embedBuilder.build()).addActionRow(
 					Button.primary("yes", "Yes"),
 					Button.primary("no", "No")
 				).setEphemeral(true).queue();
@@ -146,7 +145,7 @@ public class ModmailBot extends ListenerAdapter {
 	@Override
 	public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
 		//final Guild guild = targetChannel.getGuild();
-		//final EmbedBuilder theEmbed = new EmbedBuilder();
+		//final EmbedBuilder embedBuilder = new EmbedBuilder();
 		//boolean successful;
 
 		if (buttonEvent.getComponentId().equals("yes")) {
@@ -170,7 +169,7 @@ public class ModmailBot extends ListenerAdapter {
 	private void closeThreadAndNotifyUser(long modmailThreadId, @NotNull User threadCloser) throws InterruptedException {
 		client.awaitReady();
 
-		final EmbedBuilder theEmbed = new EmbedBuilder();
+		final EmbedBuilder embedBuilder = new EmbedBuilder();
 		ThreadChannel theThread = client.getThreadChannelById(modmailThreadId);
 		PrivateChannel dmChannel = threadToUser.get(modmailThreadId);
 
@@ -180,16 +179,16 @@ public class ModmailBot extends ListenerAdapter {
 
 		// Send a "thread closed" message in the thread itself and to the thread creator.
 		ModmailCommon.createCommonEmbed(
-			theEmbed,
+			embedBuilder,
 			theThread.getGuild().getName(),
 			theThread.getGuild().getIconUrl(),
 			threadCloser.getName() + " has closed this thread.",
 			ModmailCommon.lightGreen
 		);
-		theEmbed.setFooter(threadCloser.getId() + " • Staff");
+		embedBuilder.setFooter(threadCloser.getId() + " • Staff");
 
-		dmChannel.sendMessageEmbeds(theEmbed.build()).queue();
-		theThread.sendMessageEmbeds(theEmbed.build()).queue(message -> {
+		dmChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+		theThread.sendMessageEmbeds(embedBuilder.build()).queue(message -> {
 			theThread.getManager().setArchived(true).queue();
 		});
 
@@ -210,7 +209,7 @@ public class ModmailBot extends ListenerAdapter {
 	 * @param targetChannel Where to send the message.
 	 */
 	private static void handleMessage(MessageReceivedEvent msgEvent, MessageChannel targetChannel) {
-		final EmbedBuilder theEmbed = new EmbedBuilder();
+		final EmbedBuilder embedBuilder = new EmbedBuilder();
 		final Message theMessage = msgEvent.getMessage();
 		final User theUser = msgEvent.getMessage().getAuthor();
 		final List<Message.Attachment> theAttachments = theMessage.getAttachments();
@@ -222,20 +221,20 @@ public class ModmailBot extends ListenerAdapter {
 		boolean spoilEmbeds = false;
 		final var attachmentList = new ArrayList<String>(theAttachments.size());
 
-		theEmbed.setAuthor(theUser.getName(), theUser.getAvatarUrl(), theUser.getAvatarUrl());
-		theEmbed.setFooter(theUser.getId() + " • Staff");
+		embedBuilder.setAuthor(theUser.getName(), theUser.getAvatarUrl(), theUser.getAvatarUrl());
+		embedBuilder.setFooter(theUser.getId() + " • Staff");
 
 		if (msgEvent.getChannel() instanceof ThreadChannel) {
 			if (theMessage.getContentRaw().startsWith("re: ")) {
-				theEmbed.setDescription(theMessage.getContentRaw().substring(4));
-				theEmbed.setColor(ModmailCommon.lightGreen);
+				embedBuilder.setDescription(theMessage.getContentRaw().substring(4));
+				embedBuilder.setColor(ModmailCommon.lightGreen);
 				theMessage.addReaction(Emoji.fromUnicode(ModmailCommon.whiteCheckMark)).queue();
 			} else {
 				return;
 			}
 		} else {
-			theEmbed.setDescription(theMessage.getContentRaw());
-			theEmbed.setColor(ModmailCommon.lightGreen);
+			embedBuilder.setDescription(theMessage.getContentRaw());
+			embedBuilder.setColor(ModmailCommon.lightGreen);
 			theMessage.addReaction(Emoji.fromUnicode(ModmailCommon.whiteCheckMark)).queue();
 		}
 
@@ -250,7 +249,7 @@ public class ModmailBot extends ListenerAdapter {
 				// Everything else can be spoiled via pipes.
 				spoilEmbeds = attachment.isSpoiler();
 
-				theEmbed.setImage(attachment.getUrl());
+				embedBuilder.setImage(attachment.getUrl());
 
 				// No need to continue here; we found the first image.
 				break;
@@ -259,18 +258,18 @@ public class ModmailBot extends ListenerAdapter {
 			}
 		}
 
-		var builder = targetChannel.sendMessageEmbeds(theEmbed.build());
+		var builder = targetChannel.sendMessageEmbeds(embedBuilder.build());
 
 		// Reuse builder
-		theEmbed.clear();
+		embedBuilder.clear();
 
 		while (itr.hasNext()) {
 			final var attachment = itr.next();
 
 			if (attachment.isImage()) {
 				spoilEmbeds |= attachment.isSpoiler();
-				theEmbed.setImage(attachment.getUrl());
-				builder.addEmbeds(theEmbed.build());
+				embedBuilder.setImage(attachment.getUrl());
+				builder.addEmbeds(embedBuilder.build());
 			} else {
 				appendAttachment(attachmentList, attachment);
 			}
@@ -278,15 +277,15 @@ public class ModmailBot extends ListenerAdapter {
 
 
 		if (!attachmentList.isEmpty()) {
-			theEmbed.clear();
-			theEmbed.setTitle("Additional attachments");
+			embedBuilder.clear();
+			embedBuilder.setTitle("Additional attachments");
 
-			final var descriptionBuilder = theEmbed.getDescriptionBuilder();
+			final var descriptionBuilder = embedBuilder.getDescriptionBuilder();
 			for (final var attachment : attachmentList) {
 				descriptionBuilder.append(attachment).append('\n');
 			}
 
-			builder.addEmbeds(theEmbed.build());
+			builder.addEmbeds(embedBuilder.build());
 		}
 
 		if (spoilEmbeds) {

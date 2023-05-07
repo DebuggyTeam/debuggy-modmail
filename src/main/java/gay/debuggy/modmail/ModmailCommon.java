@@ -1,6 +1,7 @@
 package gay.debuggy.modmail;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.User;
 
 public class ModmailCommon {
 	// Constants
@@ -42,5 +43,21 @@ public class ModmailCommon {
 		embed.setAuthor(authorName, authorIconUrl, authorIconUrl);
 		embed.setDescription(description);
 		embed.setColor(color);
+	}
+
+	static void setEmbedAuthor(EmbedBuilder embed, User user) {
+		embed.setAuthor(user.getName(), user.getAvatarUrl(), user.getAvatarUrl());
+		embed.setColor(ModmailCommon.lightGreen);
+	}
+
+
+	static EmbedBuilder createEmbedBuilder(User user) {
+		EmbedBuilder result = new EmbedBuilder();
+		result
+			.setAuthor(user.getName(), user.getAvatarUrl(), user.getAvatarUrl())
+    		.setColor(lightGreen)
+			.addField("registered @", user.getTimeCreated().toEpochSecond() + ":R>", true)
+    		.addField("User ID", user.getId(), true);
+		return result;
 	}
 }

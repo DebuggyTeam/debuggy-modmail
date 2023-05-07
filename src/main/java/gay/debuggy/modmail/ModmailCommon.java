@@ -31,7 +31,12 @@ public class ModmailCommon {
 	 * @return boolean
 	 */
 	static boolean isHarmful(String url) {
-		return (HARMFUL_EXTENSIONS.contains(url));
+		int extPos = url.lastIndexOf('.');
+		if (extPos==-1) return false;
+		
+		String ext = url.substring(extPos, url.length());
+		
+		return (HARMFUL_EXTENSIONS.contains(ext));
 	}
 	
 	/**

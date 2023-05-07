@@ -20,10 +20,19 @@ dependencies {
 	implementation("net.dv8tion:JDA:5.0.0-beta.3") {
 		exclude(module = "opus-java")
 	}
+	testImplementation(platform("org.junit:junit-bom:5.9.3"))
+	testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
 tasks {
 	withType<JavaCompile> {
 		options.encoding = "UTF-8"
+	}
+}
+
+tasks.test {
+	useJUnitPlatform()
+	testLogging {
+		events("passed", "skipped", "failed")
 	}
 }

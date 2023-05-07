@@ -1,63 +1,73 @@
 package gay.debuggy.modmail;
 
+import java.util.Set;
+
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 
+/**
+ * @author woodiertexas
+ * @author Ampflower
+ * @author falkreon
+ * @since v1.0.0
+ **/
 public class ModmailCommon {
 	// Constants
 	static final String whiteCheckMark = "U+2705";
 	static final int alertRed = 0xFF0000;
 	static final int lightGreen = 0x2ac48e;
-
-
+	
+	private static final Set<String> HARMFUL_EXTENSIONS = Set.of(
+		".sh", ".exe", ".scr", ".bat", ".vbs",
+		".cmd", ".msi", ".com", ".efi", ".o"
+	);
+	
+	// Methods
 	/**
-	 * Checks if a url ends with an executable extension.
+	 * Checks if an url ends with a forbidden extension.
 	 *
 	 * @param url The URL to check.
 	 * @return boolean
 	 */
-	static boolean isExecutable(String url) {
-		String[] listOfExtensions = {
-			".sh", ".exe", ".scr", ".bat", ".vbs",
-			".cmd", ".msi", ".com", ".efi", ".o"
-		};
-
-		for (String extension : listOfExtensions) {
-			if (url.endsWith(extension)) {
-				return true;
-			}
-		}
-		return false;
+	static boolean isHarmful(String url) {
+		int extPos = url.lastIndexOf('.');
+		if (extPos==-1) return false;
+		
+		String ext = url.substring(extPos, url.length());
+		
+		return (HARMFUL_EXTENSIONS.contains(ext));
 	}
-
+	
 	/**
-	 * Creates a common embed.
-	 *
-	 * @param embed         The EmbedBuilder to use.
-	 * @param authorName    The author's name (can be a user, a guild, or something else).
-	 * @param authorIconUrl The author's icon URL (can be a user, a guild, or something else).
-	 * @param description   The text description.
-	 * @param color         The embed's bar color.
+	 * Creates an EmbedBuilder and fills in details representing a User - for instance, for an embed inserted into a
+	 * modmail thread in response to a DM to the bot.
+	 * 
+	 * @param user The user to represent in the embed
+	 * @return the EmbedBuilder, which can be further customized and then built.
 	 */
-	static void createCommonEmbed(EmbedBuilder embed, String authorName, String authorIconUrl, String description, int color) {
-		embed.setAuthor(authorName, authorIconUrl, authorIconUrl);
-		embed.setDescription(description);
-		embed.setColor(color);
-	}
-
-	static void setEmbedAuthor(EmbedBuilder embed, User user) {
-		embed.setAuthor(user.getName(), user.getAvatarUrl(), user.getAvatarUrl());
-		embed.setColor(ModmailCommon.lightGreen);
-	}
-
-
 	static EmbedBuilder createEmbedBuilder(User user) {
 		EmbedBuilder result = new EmbedBuilder();
 		result
-			.setAuthor(user.getName(), user.getAvatarUrl(), user.getAvatarUrl())
-    		.setColor(lightGreen)
-			.addField("registered @", user.getTimeCreated().toEpochSecond() + ":R>", true)
-    		.addField("User ID", user.getId(), true);
+			.setAuthor(user.getName(), null, user.getAvatarUrl())
+			.setColor(lightGreen)
+			.addField("registered @", "<t:" + user.getTimeCreated().toEpochSecond() + ":R>", true)
+			.addField("User ID", user.getId(), true);
+		return result;
+	}
+	
+	/**
+	 * Creates an EmbedBuilder and fills in details representing a Guild - for instance, the guild that the modmail bot
+	 * is running in, for use in official DMs back to the affected user.
+	 * 
+	 * @param guild The guild to represent in the embed
+	 * @return the EmbedBuilder, which can be further customized and then built.
+	 */
+	static EmbedBuilder createEmbedBuilder(Guild guild) {
+		EmbedBuilder result = new EmbedBuilder();
+		result
+			.setAuthor(guild.getName(), null, guild.getIconUrl())
+			.setColor(lightGreen);
 		return result;
 	}
 }

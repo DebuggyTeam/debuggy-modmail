@@ -8,3 +8,11 @@ build/
 .users*
 maven.sock
 config.ini
+
+# IDE stuff
+.classpath
+.project
+.settings
+
+# Compile dir
+bin/

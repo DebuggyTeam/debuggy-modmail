@@ -38,7 +38,7 @@ public class ModmailCommon {
 		result
 			.setAuthor(user.getName(), null, user.getAvatarUrl())
 			.setColor(lightGreen)
-			.addField("registered @", user.getTimeCreated().toEpochSecond() + ":R>", true)
+			.addField("registered @", "<t:" + user.getTimeCreated().toEpochSecond() + ":R>", true)
 			.addField("User ID", user.getId(), true);
 		return result;
 	}

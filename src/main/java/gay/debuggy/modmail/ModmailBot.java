@@ -37,7 +37,8 @@ import static gay.debuggy.modmail.Main.targetChannel;
 /**
  * @author woodiertexas
  * @author Ampflower
- * @since ${version}
+ * @author falkreon
+ * @since v1.0.0
  **/
 public class ModmailBot extends ListenerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(ModmailBot.class);
@@ -226,8 +227,9 @@ public class ModmailBot extends ListenerAdapter {
 	/**
 	 * Closes the modmail thread, and sends an embed message to both the thread-creator and the thread-closer letting
 	 * them know that the thread has been closed.
+	 * 
 	 * @param modmailThreadId The thread to close
-	 * @param threadCloser The user who is closing the thread.
+	 * @param threadCloser    The user who is closing the thread.
 	 * @return true if the thread was successfully closed. false indicates a consistency error in the internal maps
 	 */
 	private boolean closeThreadAndNotifyUser(long modmailThreadId, @NotNull User threadCloser) {
@@ -240,7 +242,7 @@ public class ModmailBot extends ListenerAdapter {
 		}
 
 		ThreadChannel thread = getModmailThread(dmChannel.getUser());
-		if (thread==null || thread.getIdLong() != modmailThreadId) {
+		if (thread == null || thread.getIdLong() != modmailThreadId) {
 			return false; //TODO: Also throw a fit.
 		}
 
@@ -305,7 +307,7 @@ public class ModmailBot extends ListenerAdapter {
 			theMessage.addReaction(Emoji.fromUnicode(ModmailCommon.whiteCheckMark)).queue();
 		}
 
-		//Set the image of the embed to the first attached image
+		// Set the image of the embed to the first attached image
 		Message.Attachment previewImage = null;
 		for(Message.Attachment attachment : theMessage.getAttachments()) {
 			if (attachment.isImage()) {
@@ -329,7 +331,7 @@ public class ModmailBot extends ListenerAdapter {
 			for(Message.Attachment attachment : theMessage.getAttachments()) {
 				if (attachment == previewImage) continue; // We already embedded previewImage
 					
-				descriptionBuilder.append(attachment).append('\n');
+				descriptionBuilder.append(attachment.getUrl()).append('\n');
 			}
 			
 			messageCreateAction.addEmbeds(embedBuilder.build());

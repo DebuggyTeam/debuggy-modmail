@@ -36,7 +36,7 @@ public class ModmailCommon {
 	static EmbedBuilder createEmbedBuilder(User user) {
 		EmbedBuilder result = new EmbedBuilder();
 		result
-			.setAuthor(user.getName(), user.getAsMention(), user.getAvatarUrl())
+			.setAuthor(user.getName(), null, user.getAvatarUrl())
 			.setColor(lightGreen)
 			.addField("registered @", user.getTimeCreated().toEpochSecond() + ":R>", true)
 			.addField("User ID", user.getId(), true);

@@ -34,7 +34,7 @@ public final class Main {
 			.setActivity(Activity.of(Activity.ActivityType.WATCHING, "for your DMs!"))
 			// Even though createLight should already disallow these, I'm putting these here anyways.
 			.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS)
-			.addEventListeners(new SomethingAboutMessageEvents(), new TestCommand());
+			.addEventListeners(new ModmailBot(), new TestCommand());
 
 		client = builder.build().awaitReady();
 

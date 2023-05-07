@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -32,11 +33,11 @@ import static gay.debuggy.modmail.Main.targetChannel;
  * @author Ampflower
  * @since ${version}
  **/
-public class SomethingAboutMessageEvents extends ListenerAdapter {
-	private static final Logger logger = LoggerFactory.getLogger(SomethingAboutMessageEvents.class);
+public class ModmailBot extends ListenerAdapter {
+	private static final Logger logger = LoggerFactory.getLogger(ModmailBot.class);
 
 	public Map<Long, Long> modmailThread = new ConcurrentHashMap<>();
-	public Map<Long, MessageChannel> threadToUser = new ConcurrentHashMap<>();
+	public Map<Long, PrivateChannel> threadToUser = new ConcurrentHashMap<>();
 
 	@Override
 	public void onMessageReceived(final MessageReceivedEvent msgEvent) {
@@ -75,7 +76,7 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 					targetChannel.sendMessageEmbeds(theEmbed.build()).queue(message -> {
 						message.getChannel().asTextChannel().createThreadChannel(theUser.getName() + "'s thread", message.getId()).queue(threadChannel -> {
 							modmailThread.put(theUser.getIdLong(), threadChannel.getIdLong());
-							threadToUser.put(threadChannel.getIdLong(), msgEvent.getChannel());
+							threadToUser.put(threadChannel.getIdLong(), (PrivateChannel) msgEvent.getChannel());
 							handleMessage(msgEvent, threadChannel);
 
 							threadChannel.sendMessage("<@&931245994128048191> <:yeefpineapple:1096590659814686720>").queue();
@@ -114,7 +115,6 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 			ThreadChannel theThread = null;
 			for (Long threadId : modmailThread.values()) {
 				theThread = client.getThreadChannelById(threadId);
-
 			}
 
 			ModmailCommon.createCommonEmbed(theEmbed, theUser.getName(), theUser.getAvatarUrl(), "Edited message: " + theMessage.getContentRaw(), ModmailCommon.lightGreen);
@@ -145,47 +145,62 @@ public class SomethingAboutMessageEvents extends ListenerAdapter {
 
 	@Override
 	public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
-		final Guild guild = targetChannel.getGuild();
-		final EmbedBuilder theEmbed = new EmbedBuilder();
-		final MessageChannel theChannel = buttonEvent.getMessageChannel();
+		//final Guild guild = targetChannel.getGuild();
+		//final EmbedBuilder theEmbed = new EmbedBuilder();
+		//boolean successful;
 
 		if (buttonEvent.getComponentId().equals("yes")) {
-			for (Map.Entry<Long, Long> entry : modmailThread.entrySet()) {
-				Long userId = entry.getKey();
-				Long threadId = entry.getValue();
-				if (threadId != null && threadId.equals(theChannel.getIdLong())) {
-					ThreadChannel theThread = client.getThreadChannelById(threadId);
-
-					// DM the modmail thread owner.... somehow
-
-					assert theThread != null;
-					theThread.retrieveParentMessage().queue(message -> {
-						message.editMessage("This thread is now closed.").queue();
-					});
-
-					// Send a "thread closed" message in the thread itself.
-					ModmailCommon.createCommonEmbed(
-						theEmbed,
-						guild.getName(),
-						guild.getIconUrl(),
-						buttonEvent.getUser().getName() + " has closed this thread.",
-						ModmailCommon.lightGreen
-					);
-
-					theEmbed.setFooter(buttonEvent.getUser().getId() + " • Staff");
-					theThread.sendMessageEmbeds(theEmbed.build()).queue(message -> {
-						theThread.getManager().setArchived(true).queue();
-					});
-
-					// Finally remove the modmail thread from the hashmaps.
-					modmailThread.remove(userId, threadId);
-					threadToUser.remove(threadId);
-				}
+			long modmailThreadId = 0;
+			for (Long threadId : modmailThread.values()) {
+				modmailThreadId = client.getThreadChannelById(threadId).getIdLong();
 			}
+
+			try {
+				closeThreadAndNotifyUser(modmailThreadId, buttonEvent.getUser());
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
 			buttonEvent.editMessage("thread closed").queue();
 		} else if (buttonEvent.getComponentId().equals("no")) {
 			buttonEvent.editMessage("thread stays open").queue();
 		}
+	}
+
+	private void closeThreadAndNotifyUser(long modmailThreadId, @NotNull User threadCloser) throws InterruptedException {
+		client.awaitReady();
+
+		final EmbedBuilder theEmbed = new EmbedBuilder();
+		ThreadChannel theThread = client.getThreadChannelById(modmailThreadId);
+		PrivateChannel dmChannel = threadToUser.get(modmailThreadId);
+
+		if (theThread == null) {
+			return;
+		}
+
+		// Send a "thread closed" message in the thread itself and to the thread creator.
+		ModmailCommon.createCommonEmbed(
+			theEmbed,
+			theThread.getGuild().getName(),
+			theThread.getGuild().getIconUrl(),
+			threadCloser.getName() + " has closed this thread.",
+			ModmailCommon.lightGreen
+		);
+		theEmbed.setFooter(threadCloser.getId() + " • Staff");
+
+		dmChannel.sendMessageEmbeds(theEmbed.build()).queue();
+		theThread.sendMessageEmbeds(theEmbed.build()).queue(message -> {
+			theThread.getManager().setArchived(true).queue();
+		});
+
+		theThread.retrieveParentMessage().queue(message -> {
+			message.editMessage("This thread is now closed.").queue(message1 -> {
+			});
+		});
+
+		// Finally remove the modmail thread from the hashmaps.
+
+		modmailThread.remove(dmChannel.getUser().getIdLong(), modmailThreadId);
 	}
 
 	/**

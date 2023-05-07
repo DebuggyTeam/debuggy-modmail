@@ -50,9 +50,10 @@ public class ModmailCommon {
 		EmbedBuilder result = new EmbedBuilder();
 		result
 			.setAuthor(user.getName(), null, user.getAvatarUrl())
-			.setColor(lightGreen)
-			.addField("registered @", "<t:" + user.getTimeCreated().toEpochSecond() + ":R>", true)
-			.addField("User ID", user.getId(), true);
+			.setDescription(user.getAsMention() + " registered their account <t:" + user.getTimeCreated().toEpochSecond() + ":R>")
+			.addField("Registered @", "<t:" + user.getTimeCreated().toEpochSecond() + ">", true)
+			.addField("User ID", user.getId(), true)
+			.setColor(lightGreen);
 		return result;
 	}
 	

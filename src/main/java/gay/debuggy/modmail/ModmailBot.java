@@ -72,11 +72,12 @@ public class ModmailBot extends ListenerAdapter {
 			if (threatFound) {
 				
 				// Notify mods
-				MessageEmbed modmailThreadMessage = ModmailCommon.createEmbedBuilder(sender)
-						.addField("Potentially harmful link(s) found:", "`" + String.valueOf(harmfulUrls) + "`", false)
-						.appendDescription(message.getContentRaw())
-						.setColor(ModmailCommon.alertRed)
-						.build();
+				MessageEmbed modmailThreadMessage = ModmailCommon.createEmbedBuilder(targetChannel.getGuild())
+					.setDescription(sender.getAsMention() + " has sent potentially harmful files in modmail.")
+					.addField("Potentially harmful link(s) found:", "`" + String.valueOf(harmfulUrls) + "`", false)
+					.appendDescription(message.getContentRaw())
+					.setColor(ModmailCommon.alertRed)
+					.build();
 				
 				// Send the notice to the modmail channel if applicable, otherwise to the bot channel
 				ThreadChannel modmailChannel = getModmailThread(sender);
@@ -88,7 +89,7 @@ public class ModmailBot extends ListenerAdapter {
 				
 				// Notify sender
 				MessageEmbed replyMessage = ModmailCommon.createEmbedBuilder(targetChannel.getGuild())
-						.appendDescription("Your latest message contains one or more potentially harmful files. Please do not send executables in modmail.")
+						.appendDescription("Your latest message contains one or more potentially harmful files. Please do not send potentially harmful files in modmail.")
 						.setColor(ModmailCommon.alertRed)
 						.build();
 				

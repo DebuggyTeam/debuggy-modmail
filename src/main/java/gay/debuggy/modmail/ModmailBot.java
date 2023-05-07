@@ -87,7 +87,7 @@ public class ModmailBot extends ListenerAdapter {
 				
 				//Notify sender
 				MessageEmbed replyMessage = ModmailCommon.createEmbedBuilder(targetChannel.getGuild())
-						.appendDescription("Your latest message contains one or more ptentially harmful files. Please do not send executables in modmail.")
+						.appendDescription("Your latest message contains one or more potentially harmful files. Please do not send executables in modmail.")
 						.setColor(ModmailCommon.alertRed)
 						.build();
 				

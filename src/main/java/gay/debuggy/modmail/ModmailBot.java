@@ -198,10 +198,7 @@ public class ModmailBot extends ListenerAdapter {
 					
 				
 			} else {
-				slashEvent
-					.getMessageChannel()
-					.sendMessage("<:yeefpineapple:1096590659814686720>")
-					.queue();
+				slashEvent.reply("<:yeefpineapple:1096590659814686720>").queue();
 			}
 		}
 	}

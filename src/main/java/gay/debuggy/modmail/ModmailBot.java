@@ -16,8 +16,10 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 
 import org.jetbrains.annotations.NotNull;
@@ -25,10 +27,15 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static gay.debuggy.modmail.Main.botId;
 import static gay.debuggy.modmail.Main.client;
@@ -43,13 +50,30 @@ import static gay.debuggy.modmail.Main.targetChannel;
 public class ModmailBot extends ListenerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(ModmailBot.class);
 
-	public Map<Long, Long> modmailThread = new ConcurrentHashMap<>();
-	public Map<Long, PrivateChannel> threadToUser = new ConcurrentHashMap<>();
+	/**
+	 * The set of threads that the bot can proxy to/from. If iterating over this collection or any of its views,
+	 * synchronize on it!
+	 */
+	private BiMap<Long, Long> threadToUser = Maps.synchronizedBiMap(HashBiMap.<Long,Long>create());
+	
+	private static record PendingThread(User user, PrivateChannel userChannel, MessageEmbed initialEmbed) {};
+	/**
+	 * Users that have DM'd the bot to create a channel, but have not yet clicked "yes" or "no" on the buttons yet.
+	 * Keyed on user.getIdLong()
+	 */
+	private ConcurrentHashMap<Long, PendingThread> pendingThreads = new ConcurrentHashMap<>();
+	
+	/**
+	 * Service used to delay tasks, e.g. to make room for PluralKit.
+	 */
+	public ScheduledExecutorService backgroundWorker = Executors.newScheduledThreadPool(1);
 
 	@Override
 	public void onMessageReceived(final MessageReceivedEvent msgEvent) {
 		// Exclude bots from here; they are not to be proxied normally.
 		if (msgEvent.getAuthor().isBot()) {
+			
+			//TODO: Detect PK Application ID and proxy if needed
 			return;
 		}
 
@@ -123,8 +147,9 @@ public class ModmailBot extends ListenerAdapter {
 							.queue(threadChannel -> {
 								
 								// Log the new stuff
-								this.modmailThread.put(sender.getIdLong(), threadChannel.getIdLong());
-								threadToUser.put(threadChannel.getIdLong(), msgEvent.getChannel().asPrivateChannel());
+								//this.modmailThread.put(sender.getIdLong(), threadChannel.getIdLong());
+								//threadToUser.put(threadChannel.getIdLong(), msgEvent.getChannel().asPrivateChannel());
+								threadToUser.put(threadChannel.getIdLong(), sender.getIdLong());
 								
 								// Proxy the message into the new thread
 								handleMessage(msgEvent, threadChannel);
@@ -146,11 +171,10 @@ public class ModmailBot extends ListenerAdapter {
 			
 		} else if (msgEvent.getChannelType().isThread()) {
 			final var fromChannel = msgEvent.getChannel();
-			final var userChannel = threadToUser.get(fromChannel.getIdLong());
-
-			if (userChannel != null) {
-				handleMessage(msgEvent, userChannel);
-			}
+			final var userId = threadToUser.get(fromChannel.getIdLong());
+			client.getUserById(userId).openPrivateChannel().queue(dmChannel -> {
+				handleMessage(msgEvent, dmChannel);
+			});
 		}
 	}
 
@@ -232,16 +256,11 @@ public class ModmailBot extends ListenerAdapter {
 	 */
 	private boolean closeThreadAndNotifyUser(long modmailThreadId, @NotNull User threadCloser) {
 		
-		// Grab data and check consistency. Failures in these checks represent serious internal errors!
-		
-		PrivateChannel dmChannel = threadToUser.get(modmailThreadId);
-		if (dmChannel == null) {
-			return false; //TODO: Throw a fit
-		}
-
-		ThreadChannel thread = getModmailThread(dmChannel.getUser());
-		if (thread == null || thread.getIdLong() != modmailThreadId) {
-			return false; //TODO: Also throw a fit.
+		// Grab data and check consistency.
+		ThreadChannel thread = client.getThreadChannelById(modmailThreadId);
+		if (thread == null) {
+			logger.error("Attempted to close thread "+modmailThreadId+" but it doesn't exist.");
+			return false;
 		}
 
 		// Create a "Thread closed" message
@@ -252,18 +271,22 @@ public class ModmailBot extends ListenerAdapter {
 			.build();
 
 		// Send the embed to both the thread-closer and the thread-creator
-		dmChannel.sendMessageEmbeds(embed).queue();
+		getDMChannel(modmailThreadId).queue(dmChannel -> {
+			dmChannel.sendMessageEmbeds(embed).queue();
+		});
+		
+		//Send the thread notification to the thread itself, and ONLY THEN archive the thread
 		thread.sendMessageEmbeds(embed).queue(message -> {
 			thread.getManager().setArchived(true).queue();
 		});
-
+		
+		//Alter the thread's parent message to clarify that it's closed
 		thread.retrieveParentMessage().queue(message -> {
 			message.editMessage("This thread is now closed.").queue();
 		});
 
 		// Finally remove the modmail thread from the hashmaps.
-		modmailThread.remove(dmChannel.getUser().getIdLong(), modmailThreadId);
-		threadToUser.remove(modmailThreadId, dmChannel.getUser().getIdLong());
+		threadToUser.remove(modmailThreadId);
 		
 		return true;
 	}
@@ -277,7 +300,7 @@ public class ModmailBot extends ListenerAdapter {
 	private static void handleMessage(MessageReceivedEvent msgEvent, MessageChannel targetChannel) {
 		final Message theMessage = msgEvent.getMessage();
 		final User theUser = msgEvent.getMessage().getAuthor();
-		final List<Message.Attachment> theAttachments = theMessage.getAttachments();
+		//final List<Message.Attachment> theAttachments = theMessage.getAttachments();
 
 		if (theMessage.getAuthor().getIdLong() == botId) {
 			return;
@@ -344,18 +367,35 @@ public class ModmailBot extends ListenerAdapter {
 
 	@Nullable
 	private ThreadChannel getModmailThread(@NotNull User user) {
-		final Long threadId = modmailThread.get(user.getIdLong());
+		final Long threadId = threadToUser.inverse().get(user.getIdLong());
 		if (threadId == null) return null;
 		
 		@Nullable final ThreadChannel modmailThread = client.getThreadChannelById(threadId);
 		return modmailThread; // May also be null
 	}
 	
+	@Nullable
+	private CacheRestAction<PrivateChannel> getDMChannel(long modmailThreadId) {
+		final Long userId = threadToUser.get(modmailThreadId);
+		if (userId == null) return null;
+		
+		User user = client.getUserById(userId);
+		if (user == null) return null;
+		
+		return user.openPrivateChannel();
+	}
+	
+	/*
 	private static void appendAttachment(List<String> attachmentList, Message.Attachment attachment) {
 		if (attachment.isSpoiler()) {
 			attachmentList.add("||" + attachment.getUrl() + "||");
 		} else {
 			attachmentList.add(attachment.getUrl());
 		}
+	}*/
+	
+	@Override
+	public void onShutdown(ShutdownEvent event) {
+		backgroundWorker.shutdown(); //Politely request that the worker stop
 	}
 }

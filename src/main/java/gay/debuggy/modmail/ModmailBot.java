@@ -47,8 +47,10 @@ import static gay.debuggy.modmail.Main.targetChannel;
  * @author falkreon
  * @since v1.0.0
  **/
+
 public class ModmailBot extends ListenerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(ModmailBot.class);
+	private static final long pluralKitId = 466378653216014359L;
 
 	/**
 	 * The set of threads that the bot can proxy to/from. If iterating over this collection or any of its views,
@@ -71,7 +73,7 @@ public class ModmailBot extends ListenerAdapter {
 	@Override
 	public void onMessageReceived(final MessageReceivedEvent msgEvent) {
 		// Exclude bots from here; they are not to be proxied normally.
-		if (msgEvent.getMessage().isWebhookMessage() && msgEvent.getMessage().getApplicationIdLong() == ModmailCommon.pluralKitId) {
+		if (msgEvent.getMessage().isWebhookMessage() && msgEvent.getMessage().getApplicationIdLong() == pluralKitId) {
 			// ghost
 		}
 		

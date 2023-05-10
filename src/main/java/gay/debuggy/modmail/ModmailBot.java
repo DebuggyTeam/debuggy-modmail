@@ -105,7 +105,7 @@ public class ModmailBot extends ListenerAdapter {
 				
 				// Send the notice to the modmail channel if applicable, otherwise to the bot channel
 				ThreadChannel modmailChannel = getModmailThread(sender);
-				if (modmailChannel!=null) {
+				if (modmailChannel != null) {
 					modmailChannel.sendMessageEmbeds(modmailThreadMessage).queue();
 				} else {
 					targetChannel.sendMessageEmbeds(modmailThreadMessage).queue();
@@ -143,7 +143,7 @@ public class ModmailBot extends ListenerAdapter {
 				targetChannel.sendMessageEmbeds(embed).queue(threadParent -> {
 					if (targetChannel instanceof TextChannel textChannel) {
 						textChannel
-							.createThreadChannel(sender.getName()+"'s thread", threadParent.getId())
+							.createThreadChannel(sender.getName() + "'s thread", threadParent.getId())
 							.queue(threadChannel -> {
 								
 								// Log the new stuff
@@ -158,7 +158,7 @@ public class ModmailBot extends ListenerAdapter {
 								threadChannel.sendMessage("<@&931245994128048191> <:yeefpineapple:1096590659814686720>").queue();
 							});
 					} else {
-						targetChannel.sendMessage("Could not create the thread! (targetChannel is not a text channel)");
+						targetChannel.sendMessage("Could not create the thread! (targetChannel is not a text channel)").queue();
 					}
 					
 				});
@@ -195,7 +195,7 @@ public class ModmailBot extends ListenerAdapter {
 			} else {
 				// Create the embed
 				EmbedBuilder embedBuilder = ModmailCommon.createEmbedBuilder(theUser)
-						.appendDescription("Edited message: " + theMessage.getContentRaw());
+					.appendDescription("Edited message: " + theMessage.getContentRaw());
 				
 				// Send it!
 				modmailThread.sendMessageEmbeds(embedBuilder.build()).queue();

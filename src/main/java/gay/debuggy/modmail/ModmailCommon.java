@@ -32,7 +32,7 @@ public class ModmailCommon {
 	 */
 	static boolean isHarmful(String url) {
 		int extPos = url.lastIndexOf('.');
-		if (extPos==-1) return false;
+		if (extPos == -1) return false;
 		
 		String ext = url.substring(extPos, url.length());
 		

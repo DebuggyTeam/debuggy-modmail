@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.util.Objects;
@@ -30,10 +31,11 @@ public final class Main {
 
 	public static void main(String[] args) throws InterruptedException {
 		final var builder = JDABuilder.createLight(token)
-			.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
-			.setActivity(Activity.of(Activity.ActivityType.WATCHING, "for your DMs!"))
+			.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS)
+			.setMemberCachePolicy(MemberCachePolicy.ALL)
 			// Even though createLight should already disallow these, I'm putting these here anyways.
 			.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS)
+			.setActivity(Activity.of(Activity.ActivityType.WATCHING, "for your DMs!"))
 			.addEventListeners(new ModmailBot(), new TestCommand());
 
 		client = builder.build().awaitReady();

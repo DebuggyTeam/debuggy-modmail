@@ -17,6 +17,7 @@ public class ModmailCommon {
 	static final String whiteCheckMark = "U+2705";
 	static final int alertRed = 0xFF0000;
 	static final int lightGreen = 0x2ac48e;
+	static final long pluralKitId = 466378653216014359L;
 	
 	private static final Set<String> HARMFUL_EXTENSIONS = Set.of(
 		".sh", ".exe", ".scr", ".bat", ".vbs",

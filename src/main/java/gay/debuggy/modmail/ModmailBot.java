@@ -71,8 +71,11 @@ public class ModmailBot extends ListenerAdapter {
 	@Override
 	public void onMessageReceived(final MessageReceivedEvent msgEvent) {
 		// Exclude bots from here; they are not to be proxied normally.
+		if (msgEvent.getMessage().isWebhookMessage() && msgEvent.getMessage().getApplicationIdLong() == ModmailCommon.pluralKitId) {
+			// ghost
+		}
+		
 		if (msgEvent.getAuthor().isBot()) {
-			
 			//TODO: Detect PK Application ID and proxy if needed
 			return;
 		}
@@ -172,6 +175,8 @@ public class ModmailBot extends ListenerAdapter {
 		} else if (msgEvent.getChannelType().isThread()) {
 			final var fromChannel = msgEvent.getChannel();
 			final var userId = threadToUser.get(fromChannel.getIdLong());
+			
+			
 			client.getUserById(userId).openPrivateChannel().queue(dmChannel -> {
 				handleMessage(msgEvent, dmChannel);
 			});
@@ -395,7 +400,7 @@ public class ModmailBot extends ListenerAdapter {
 	}*/
 	
 	@Override
-	public void onShutdown(ShutdownEvent event) {
+	public void onShutdown(@NotNull ShutdownEvent event) {
 		backgroundWorker.shutdown(); //Politely request that the worker stop
 	}
 }

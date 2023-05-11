@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 
@@ -105,7 +106,7 @@ public class ModmailBot extends ListenerAdapter {
 					.setDescription(sender.getAsMention() + " has sent potentially harmful files in modmail.")
 					.addField("Potentially harmful link(s) found:", "`" + String.valueOf(harmfulUrls) + "`", false)
 					.appendDescription(message.getContentRaw())
-					.setColor(ModmailCommon.alertRed)
+					.setColor(ModmailCommon.lightRed)
 					.build();
 				
 				// Send the notice to the modmail channel if applicable, otherwise to the bot channel
@@ -119,7 +120,7 @@ public class ModmailBot extends ListenerAdapter {
 				// Notify sender
 				MessageEmbed replyMessage = ModmailCommon.createEmbedBuilder(targetChannel.getGuild())
 						.appendDescription("Your latest message contains one or more potentially harmful files. Please do not send potentially harmful files in modmail.")
-						.setColor(ModmailCommon.alertRed)
+						.setColor(ModmailCommon.lightRed)
 						.build();
 				
 				message.getChannel().sendMessageEmbeds(replyMessage).queue();
@@ -237,7 +238,6 @@ public class ModmailBot extends ListenerAdapter {
 
 	@Override
 	public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
-
 		if (buttonEvent.getComponentId().equals("yes")) {
 			MessageChannelUnion buttonChannel = buttonEvent.getChannel();
 			if (buttonChannel instanceof ThreadChannel thread) {

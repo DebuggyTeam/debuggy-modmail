@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.User;
 public class ModmailCommon {
 	// Constants
 	static final String whiteCheckMark = "U+2705";
-	static final int alertRed = 0xFF0000;
+	static final int lightRed = 0xf54058;
 	static final int lightGreen = 0x2ac48e;
 	
 	private static final Set<String> HARMFUL_EXTENSIONS = Set.of(

@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -21,6 +22,7 @@ import java.util.Objects;
 public final class Main {
 	private static final String token = System.getenv("__DEBUGGY_MODMAIL_TOKEN");
 	private static final String channel = System.getenv("__DEBUGGY_MODMAIL_TARGET");
+	private static final ListenerAdapter[] MODULES = {new ModMail(), new MemberScreening()};
 
 	public static JDA client;
 	public static GuildMessageChannel targetChannel;
@@ -37,8 +39,11 @@ public final class Main {
 			.setMemberCachePolicy(MemberCachePolicy.ALL)
 			// Even though createLight should already disallow these, I'm putting these here anyways.
 			.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS)
-			.setActivity(Activity.of(Activity.ActivityType.WATCHING, "for your DMs!"))
-			.addEventListeners(new ModMail(), new MemberScreening());
+			.setActivity(Activity.of(Activity.ActivityType.WATCHING, "for your DMs!"));
+			
+		for (ListenerAdapter module : MODULES) {
+			builder.addEventListeners(module);
+		}
 
 		client = builder.build().awaitReady();
 

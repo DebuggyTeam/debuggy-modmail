@@ -1,5 +1,7 @@
 package gay.debuggy.modmail;
 
+import gay.debuggy.modmail.modules.MemberScreening;
+import gay.debuggy.modmail.modules.ModMail;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -36,7 +38,7 @@ public final class Main {
 			// Even though createLight should already disallow these, I'm putting these here anyways.
 			.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS)
 			.setActivity(Activity.of(Activity.ActivityType.WATCHING, "for your DMs!"))
-			.addEventListeners(new ModmailBot(), new TestCommand());
+			.addEventListeners(new ModMail(), new MemberScreening());
 
 		client = builder.build().awaitReady();
 
@@ -53,10 +55,10 @@ public final class Main {
 		}
 
 		Guild debuggyCord = client.getGuildById(912349224232943649L);
-
-
+		
 		Objects.requireNonNull(debuggyCord).updateCommands().addCommands(
-			Commands.slash("close", "close a modmail thread")
+			Commands.slash("close", "close a modmail thread"),
+			Commands.slash("v", "Apply for verification in Debuggy.")
 		).queue();
 	}
 }

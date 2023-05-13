@@ -1,7 +1,7 @@
-package gay.debuggy.modmail;
+package gay.debuggy.modmail.modules;
 
+import gay.debuggy.modmail.ModmailCommon;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
@@ -19,7 +19,6 @@ import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 
@@ -49,8 +48,8 @@ import static gay.debuggy.modmail.Main.targetChannel;
  * @since v1.0.0
  **/
 
-public class ModmailBot extends ListenerAdapter {
-	private static final Logger logger = LoggerFactory.getLogger(ModmailBot.class);
+public class ModMail extends ListenerAdapter {
+	private static final Logger logger = LoggerFactory.getLogger(ModMail.class);
 	private static final long pluralKitId = 466378653216014359L;
 
 	/**

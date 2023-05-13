@@ -14,9 +14,9 @@ import net.dv8tion.jda.api.entities.User;
  **/
 public class ModmailCommon {
 	// Constants
-	static final String whiteCheckMark = "U+2705";
-	static final int lightRed = 0xf54058;
-	static final int lightGreen = 0x2ac48e;
+	public static final String whiteCheckMark = "U+2705";
+	public static final int lightRed = 0xf54058;
+	public static final int lightGreen = 0x2ac48e;
 	
 	private static final Set<String> HARMFUL_EXTENSIONS = Set.of(
 		".sh", ".exe", ".scr", ".bat", ".vbs",
@@ -30,7 +30,7 @@ public class ModmailCommon {
 	 * @param url The URL to check.
 	 * @return boolean
 	 */
-	static boolean isHarmful(String url) {
+	public static boolean isHarmful(String url) {
 		int extPos = url.lastIndexOf('.');
 		if (extPos == -1) return false;
 		
@@ -46,7 +46,7 @@ public class ModmailCommon {
 	 * @param user The user to represent in the embed
 	 * @return the EmbedBuilder, which can be further customized and then built.
 	 */
-	static EmbedBuilder createEmbedBuilder(User user) {
+	public static EmbedBuilder createEmbedBuilder(User user) {
 		EmbedBuilder result = new EmbedBuilder();
 		result
 			.setAuthor(user.getName(), null, user.getAvatarUrl())
@@ -64,7 +64,7 @@ public class ModmailCommon {
 	 * @param guild The guild to represent in the embed
 	 * @return the EmbedBuilder, which can be further customized and then built.
 	 */
-	static EmbedBuilder createEmbedBuilder(Guild guild) {
+	public static EmbedBuilder createEmbedBuilder(Guild guild) {
 		EmbedBuilder result = new EmbedBuilder();
 		result
 			.setAuthor(guild.getName(), null, guild.getIconUrl())

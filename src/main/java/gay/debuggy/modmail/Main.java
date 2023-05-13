@@ -20,9 +20,13 @@ import java.util.Objects;
  * @since ${version}
  **/
 public final class Main {
+	/**
+	 * MODULES is where you would add the modules you want to load when the bot runs.
+	 */
+	private static final ListenerAdapter[] MODULES = {new ModMail(), new MemberScreening()};
+	
 	private static final String token = System.getenv("__DEBUGGY_MODMAIL_TOKEN");
 	private static final String channel = System.getenv("__DEBUGGY_MODMAIL_TARGET");
-	private static final ListenerAdapter[] MODULES = {new ModMail(), new MemberScreening()};
 
 	public static JDA client;
 	public static GuildMessageChannel targetChannel;

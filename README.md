@@ -9,6 +9,7 @@ Debuggy Modmail is a bot for Discord that allows people to contact community sta
 
 # Using the bot
 Debuggy Modmail is designed to be self-hosted.
+If you are using a raspberry pi, follow this to get JDK-19 on your pi: [Instructions](https://gist.github.com/filipelenfers/ef3f593deb0751944bb54b744bcac074)
 < insert stuff about env files >
 
 - in progress

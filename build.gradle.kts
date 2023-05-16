@@ -19,11 +19,11 @@ repositories {
 }
 
 dependencies {
-	shadow("net.dv8tion:JDA:5.0.0-beta.9") {
+	implementation("net.dv8tion:JDA:5.0.0-beta.9") {
 		exclude(module = "opus-java")
 	}
-	shadow("com.google.guava:guava:31.1-jre")
-	shadow("org.slf4j:slf4j-log4j12:2.0.7")
+	implementation("com.google.guava:guava:31.1-jre")
+	implementation("org.slf4j:slf4j-log4j12:2.0.7")
 
 	testImplementation(platform("org.junit:junit-bom:5.9.3"))
 	testImplementation("org.junit.jupiter:junit-jupiter")

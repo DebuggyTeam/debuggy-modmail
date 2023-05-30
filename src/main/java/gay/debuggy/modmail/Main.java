@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -17,14 +18,14 @@ import java.util.Objects;
 
 /**
  * @author Ampflower
- * @since ${version}
+ * @since v1.0.0
  **/
 public final class Main {
 	/**
 	 * MODULES is where you would add the modules you want to load when the bot runs.
 	 */
 	private static final ListenerAdapter[] MODULES = {new ModMail(), new MemberScreening()};
-	
+
 	private static final String token = System.getenv("__DEBUGGY_MODMAIL_TOKEN");
 	private static final String channel = System.getenv("__DEBUGGY_MODMAIL_TARGET");
 
@@ -44,13 +45,12 @@ public final class Main {
 			// Even though createLight should already disallow these, I'm putting these here anyways.
 			.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS)
 			.setActivity(Activity.of(Activity.ActivityType.WATCHING, "for your DMs!"));
-			
+
 		for (ListenerAdapter module : MODULES) {
 			builder.addEventListeners(module);
 		}
 
 		client = builder.build().awaitReady();
-
 		targetChannel = client.getTextChannelById(channel);
 		botId = client.getSelfUser().getIdLong();
 
@@ -64,7 +64,7 @@ public final class Main {
 		}
 
 		Guild debuggyCord = client.getGuildById(912349224232943649L);
-		
+
 		Objects.requireNonNull(debuggyCord).updateCommands().addCommands(
 			Commands.slash("close", "close a modmail thread"),
 			Commands.slash("v", "Apply for verification in Debuggy.")

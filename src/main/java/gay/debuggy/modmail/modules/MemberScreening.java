@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.exceptions.HierarchyException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -44,7 +43,6 @@ public class MemberScreening extends ListenerAdapter {
 				.build();
 
 			Modal modal = Modal.create("membership_screening", "Membership Screening")
-				//.addActionRows(ActionRow.of(findOut), ActionRow.of(pronouns))
 				.addComponents(ActionRow.of(findOut), ActionRow.of(whyJoin), ActionRow.of(pronouns))
 				.build();
 
@@ -57,9 +55,9 @@ public class MemberScreening extends ListenerAdapter {
 		if (event.getModalId().equals("membership_screening")) {
 			String pronouns = event.getValue("pronouns").getAsString();
 			String findOut = event.getValue("find_out").getAsString();
+			String whyJoin = event.getValue("why_join").getAsString();
 			User user = event.getUser();
 
-			//event.getMember().modifyNickname(user.getName() + " (" + pronouns + ")").queue();
 			event.reply("Thanks for applying.").setEphemeral(true).queue();
 
 			if (pronouns.isEmpty()) {
@@ -72,7 +70,8 @@ public class MemberScreening extends ListenerAdapter {
 				.addField("Username", user.getName(), true)
 				.addField("User ID", user.getId(), true)
 				.addField(user.getName() + "'s pronouns", pronouns, true)
-				.addField("How did " + user.getName() + " find out about Debuggy?", findOut, false);
+				.addField("How did " + user.getName() + " find out about Debuggy?", findOut, false)
+				.addField("Why did " + user.getName() + " join Debuggy?", whyJoin, false);
 
 			targetChannel.sendMessageEmbeds(verifyEmbed.build()).addActionRow(
 				Button.success("accept", "Accept"),
@@ -90,24 +89,11 @@ public class MemberScreening extends ListenerAdapter {
 		Guild guild = buttonEvent.getGuild();
 
 		if (buttonEvent.getComponentId().equals("accept")) {
-			/*
-			try {
-				if (!pronouns.isEmpty()) {
-					guild.getMemberById(user.getId()).modifyNickname(user.getName() + " (" + pronouns + ")").queue();
-				}
-			} catch (HierarchyException e) {
-				buttonEvent.reply("I can't edit the nickname of " + user.getName()).setEphemeral(true).queue();
-				message.editMessageComponents().queue();
-				return;
-			}
-
-			 */
 			guild.addRoleToMember(user, client.getRoleById(verifiedRole)).queue();
-
 			MessageEmbed acceptedEmbed = ModmailCommon.createEmbedBuilder(guild)
 				.setDescription("Hello " + user.getName() + ", your application to join Debuggy Community has been accepted." +
 					"\n\nWe also encourage you to put your preferred pronouns into your nickname." +
-					"The easiest way to do that is type in `/nick` then paste in `" + user.getName() + " (" + pronouns + ")`.")
+					"The easiest way to do that is type in `/nickname` then paste in `" + user.getName() + " (" + pronouns + ")`.")
 				.build();
 
 			user.openPrivateChannel().queue(dmChannel -> {

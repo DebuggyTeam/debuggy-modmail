@@ -1,5 +1,6 @@
 package gay.debuggy.modmail;
 
+import gay.debuggy.modmail.modules.MemberCommands;
 import gay.debuggy.modmail.modules.MemberScreening;
 import gay.debuggy.modmail.modules.ModMail;
 import net.dv8tion.jda.api.JDA;
@@ -24,7 +25,7 @@ public final class Main {
 	/**
 	 * MODULES is where you would add the modules you want to load when the bot runs.
 	 */
-	private static final ListenerAdapter[] MODULES = {new ModMail(), new MemberScreening()};
+	private static final ListenerAdapter[] MODULES = {new ModMail(), new MemberScreening(), new MemberCommands()};
 
 	private static final String token = System.getenv("__DEBUGGY_MODMAIL_TOKEN");
 	private static final String channel = System.getenv("__DEBUGGY_MODMAIL_TARGET");
@@ -65,9 +66,24 @@ public final class Main {
 
 		Guild debuggyCord = client.getGuildById(912349224232943649L);
 
-		Objects.requireNonNull(debuggyCord).updateCommands().addCommands(
-			Commands.slash("close", "close a modmail thread"),
-			Commands.slash("v", "Apply for verification in Debuggy.")
-		).queue();
+
+
+		try {
+			Objects.requireNonNull(debuggyCord).updateCommands().addCommands(
+				Commands.slash("close", "close a modmail thread"),
+				Commands.slash("v", "Apply for verification in Debuggy."),
+				Commands.slash("nickname", "Edit nickname.")
+					.addOption(OptionType.STRING, "name", "Enter desired nickname.")
+			).queue();
+		} catch (Exception e) {
+			System.err.println();
+		}
+
+		/*
+		debuggyCord.retrieveCommands().queue(commands -> {
+			commands.forEach(command -> command.delete().queue());
+		});
+
+		 */
 	}
 }

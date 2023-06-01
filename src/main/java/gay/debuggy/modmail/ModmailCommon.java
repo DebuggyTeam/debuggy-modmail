@@ -4,6 +4,7 @@ import java.util.Set;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 
 /**
@@ -17,6 +18,7 @@ public class ModmailCommon {
 	public static final String whiteCheckMark = "U+2705";
 	public static final int lightRed = 0xf54058;
 	public static final int lightGreen = 0x2ac48e;
+	public static final int debuggyBlue = 0x3138bc;
 
 	private static final Set<String> HARMFUL_EXTENSIONS = Set.of(
 		".sh", ".exe", ".scr", ".bat", ".vbs",
@@ -53,7 +55,7 @@ public class ModmailCommon {
 			.setDescription(user.getAsMention() + " registered their account <t:" + user.getTimeCreated().toEpochSecond() + ":R>")
 			.addField("Registered @", "<t:" + user.getTimeCreated().toEpochSecond() + ">", true)
 			.addField("User ID", user.getId(), true)
-			.setColor(lightGreen);
+			.setColor(debuggyBlue);
 		return result;
 	}
 
@@ -68,7 +70,11 @@ public class ModmailCommon {
 		EmbedBuilder result = new EmbedBuilder();
 		result
 			.setAuthor(guild.getName(), null, guild.getIconUrl())
-			.setColor(lightGreen);
+			.setColor(debuggyBlue);
 		return result;
+	}
+
+	public static String getValueFromEmbedField(Message message, int embedIndex, int fieldIndex) {
+		return message.getEmbeds().get(embedIndex).getFields().get(fieldIndex).getValue();
 	}
 }

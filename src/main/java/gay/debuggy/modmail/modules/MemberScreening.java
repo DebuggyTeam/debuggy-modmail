@@ -83,8 +83,8 @@ public class MemberScreening extends ListenerAdapter {
 
 	@Override
 	public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
-		String value = getValueFromEmbedField(buttonEvent.getMessage(), 0, 1);
-		String pronouns = getValueFromEmbedField(buttonEvent.getMessage(), 0, 2);
+		String value = ModmailCommon.getValueFromEmbedField(buttonEvent.getMessage(), 0, 1);
+		String pronouns = ModmailCommon.getValueFromEmbedField(buttonEvent.getMessage(), 0, 2);
 		User user = client.getUserById(value);
 		Message message = buttonEvent.getMessage();
 		Guild guild = buttonEvent.getGuild();
@@ -132,9 +132,5 @@ public class MemberScreening extends ListenerAdapter {
 		}
 
 		message.editMessageComponents().queue();
-	}
-
-	private String getValueFromEmbedField(Message message, int embedIndex, int fieldIndex) {
-		return message.getEmbeds().get(embedIndex).getFields().get(fieldIndex).getValue();
 	}
 }

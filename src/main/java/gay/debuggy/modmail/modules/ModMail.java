@@ -281,12 +281,12 @@ public class ModMail extends ListenerAdapter {
 			dmChannel.sendMessageEmbeds(embed).queue();
 		});
 
-		//Send the thread notification to the thread itself, and ONLY THEN archive the thread
+		// Send the thread notification to the thread itself, and ONLY THEN archive the thread
 		thread.sendMessageEmbeds(embed).queue(message -> {
 			thread.getManager().setArchived(true).queue();
 		});
 
-		//Alter the thread's parent message to clarify that it's closed
+		// Alter the thread's parent message to clarify that it's closed
 		thread.retrieveParentMessage().queue(message -> {
 			message.editMessage("This thread is now closed.").queue();
 		});

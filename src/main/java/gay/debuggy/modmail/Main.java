@@ -68,16 +68,12 @@ public final class Main {
 
 
 
-		try {
-			Objects.requireNonNull(debuggyCord).updateCommands().addCommands(
-				Commands.slash("close", "close a modmail thread"),
-				Commands.slash("v", "Apply for verification in Debuggy."),
-				Commands.slash("nickname", "Edit nickname.")
-					.addOption(OptionType.STRING, "name", "Enter desired nickname.")
-			).queue();
-		} catch (Exception e) {
-			System.err.println();
-		}
+		Objects.requireNonNull(debuggyCord).updateCommands().addCommands(
+			Commands.slash("close", "close a modmail thread"),
+			Commands.slash("v", "Apply for verification in Debuggy."),
+			Commands.slash("nickname", "Edit nickname.")
+				.addOption(OptionType.STRING, "name", "Enter desired nickname.")
+		).queue();
 
 		/*
 		debuggyCord.retrieveCommands().queue(commands -> {

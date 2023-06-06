@@ -1,6 +1,7 @@
 package gay.debuggy.modmail;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -29,7 +30,7 @@ public class ModmailCommon {
 	/**
 	 * Checks if an url ends with a forbidden extension.
 	 *
-	 * @param url The URL to check.
+	 * @param url The URL to check
 	 * @return boolean
 	 */
 	public static boolean isHarmful(String url) {
@@ -46,7 +47,7 @@ public class ModmailCommon {
 	 * modmail thread in response to a DM to the bot.
 	 *
 	 * @param user The user to represent in the embed
-	 * @return the EmbedBuilder, which can be further customized and then built.
+	 * @return the EmbedBuilder, which can be further customized and then built
 	 */
 	public static EmbedBuilder createEmbedBuilder(User user) {
 		EmbedBuilder result = new EmbedBuilder();
@@ -64,7 +65,7 @@ public class ModmailCommon {
 	 * is running in, for use in official DMs back to the affected user.
 	 *
 	 * @param guild The guild to represent in the embed
-	 * @return the EmbedBuilder, which can be further customized and then built.
+	 * @return the EmbedBuilder, which can be further customized and then built
 	 */
 	public static EmbedBuilder createEmbedBuilder(Guild guild) {
 		EmbedBuilder result = new EmbedBuilder();
@@ -76,5 +77,17 @@ public class ModmailCommon {
 
 	public static String getValueFromEmbedField(Message message, int embedIndex, int fieldIndex) {
 		return message.getEmbeds().get(embedIndex).getFields().get(fieldIndex).getValue();
+	}
+
+	/**
+	 * Creates an EmbedBuilder and fills in details representing a Guild - for instance, the guild that the modmail bot
+	 * is running in, for use in official DMs back to the affected user.
+	 *
+	 * @param startTime The start time in milliseconds
+	 * @param endTime The end time in milliseconds
+	 * @return the elapsed time between `startTime` and `endTime`
+	 */
+	public static long getElapsedTimeInMilliseconds(long startTime, long endTime) {
+		return endTime - startTime;
 	}
 }

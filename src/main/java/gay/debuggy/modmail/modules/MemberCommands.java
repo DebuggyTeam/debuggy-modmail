@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import static gay.debuggy.modmail.Main.client;
 import static gay.debuggy.modmail.Main.targetChannel;
+import static gay.debuggy.modmail.ModmailCommon.getElapsedTimeInMilliseconds;
 
 public class MemberCommands extends ListenerAdapter {
 	final long WEEK_IN_MILLISECONDS = TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS);
@@ -27,13 +28,14 @@ public class MemberCommands extends ListenerAdapter {
 		if (slashEvent.getName().equals("nickname")) {
 			Member member = slashEvent.getMember();
 			String name = slashEvent.getOption("name").getAsString();
+			long memberJoined = member.getTimeJoined().toEpochSecond();
 
 			if (name.length() > 32) {
 				slashEvent.reply("`" + name + "` is over the maximum 32 character limit for Discord nicknames.").setEphemeral(true).queue();
 				return;
 			}
 
-			if (System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(member.getTimeJoined().toEpochSecond()) < WEEK_IN_MILLISECONDS) {
+			if (getElapsedTimeInMilliseconds(TimeUnit.SECONDS.toMillis(memberJoined), System.currentTimeMillis()) < WEEK_IN_MILLISECONDS) {
 				slashEvent.reply("Your nickname request has been submitted.").setEphemeral(true).queue();
 
 				MessageEmbed nicknameRequestEmbed = ModmailCommon.createEmbedBuilder(slashEvent.getGuild())

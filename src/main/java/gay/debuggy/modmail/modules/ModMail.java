@@ -70,6 +70,8 @@ public class ModMail extends ListenerAdapter {
 	 */
 	public ScheduledExecutorService backgroundWorker = Executors.newScheduledThreadPool(1);
 
+
+	// The main part of the modmail module
 	@Override
 	public void onMessageReceived(final MessageReceivedEvent msgEvent) {
 		// Exclude bots from here; they are not to be proxied normally.
@@ -86,6 +88,17 @@ public class ModMail extends ListenerAdapter {
 			final Message message = msgEvent.getMessage();
 			final User sender = msgEvent.getMessage().getAuthor();
 
+
+			// Check if the user wants to open a thread
+
+			/*
+			MessageEmbed doYouWantToCreateThread = ModmailCommon.createEmbedBuilder(targetChannel.getGuild())
+				.appendDescription("Do you want to make a modmail thread?")
+				.build();
+
+			msgEvent.getChannel().sendMessageEmbeds(doYouWantToCreateThread).queue();
+
+			 */
 
 			// Scan for threats
 			List<String> harmfulUrls = new ArrayList<>();
@@ -222,8 +235,8 @@ public class ModMail extends ListenerAdapter {
 				slashEvent
 					.replyEmbeds(embed)
 					.addActionRow(
-						Button.primary("yes", "Yes"),
-						Button.primary("no", "No")
+						Button.primary("yes_close", "Yes"),
+						Button.primary("no_close", "No")
 					)
 					.setEphemeral(true)
 					.queue();
@@ -237,7 +250,7 @@ public class ModMail extends ListenerAdapter {
 
 	@Override
 	public void onButtonInteraction(ButtonInteractionEvent buttonEvent) {
-		if (buttonEvent.getComponentId().equals("yes")) {
+		if (buttonEvent.getComponentId().equals("yes_close")) {
 			MessageChannelUnion buttonChannel = buttonEvent.getChannel();
 			if (buttonChannel instanceof ThreadChannel thread) {
 
@@ -247,7 +260,7 @@ public class ModMail extends ListenerAdapter {
 				buttonEvent.editMessage("Error closing the thread.").queue();
 			}
 
-		} else if (buttonEvent.getComponentId().equals("no")) {
+		} else if (buttonEvent.getComponentId().equals("no_close")) {
 			buttonEvent.editMessage("Thread stays open.").queue();
 		}
 	}

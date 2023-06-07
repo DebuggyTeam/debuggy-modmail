@@ -101,7 +101,7 @@ public class MemberScreening extends ListenerAdapter {
 			});
 
 			EmbedBuilder acceptedColor = new EmbedBuilder(message.getEmbeds().get(0));
-			acceptedColor.setColor(ModmailCommon.lightGreen);
+			acceptedColor.setColor(ModmailCommon.LIGHT_GREEN);
 			message.editMessageEmbeds(acceptedColor.build()).queue();
 
 			buttonEvent.reply("The user's join application has been accepted.").setEphemeral(true).queueAfter(1, TimeUnit.SECONDS);
@@ -111,7 +111,7 @@ public class MemberScreening extends ListenerAdapter {
 			});
 
 			EmbedBuilder deniedColor = new EmbedBuilder(message.getEmbeds().get(0));
-			deniedColor.setColor(ModmailCommon.lightRed);
+			deniedColor.setColor(ModmailCommon.LIGHT_RED);
 			message.editMessageEmbeds(deniedColor.build()).queue();
 
 			buttonEvent.reply("The user's join application has been denied.").setEphemeral(true).queueAfter(1, TimeUnit.SECONDS);

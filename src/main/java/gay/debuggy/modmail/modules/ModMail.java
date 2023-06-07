@@ -118,7 +118,7 @@ public class ModMail extends ListenerAdapter {
 					.setDescription(sender.getAsMention() + " has sent potentially harmful files in modmail.")
 					.addField("Potentially harmful link(s) found:", "`" + String.valueOf(harmfulUrls) + "`", false)
 					.appendDescription(message.getContentRaw())
-					.setColor(ModmailCommon.lightRed)
+					.setColor(ModmailCommon.LIGHT_RED)
 					.build();
 
 				// Send the notice to the modmail channel if applicable, otherwise to the bot channel
@@ -132,7 +132,7 @@ public class ModMail extends ListenerAdapter {
 				// Notify sender
 				MessageEmbed replyMessage = ModmailCommon.createEmbedBuilder(targetChannel.getGuild())
 						.appendDescription("Your latest message contains one or more potentially harmful files. Please do not send potentially harmful files in modmail.")
-						.setColor(ModmailCommon.lightRed)
+						.setColor(ModmailCommon.LIGHT_RED)
 						.build();
 
 				message.getChannel().sendMessageEmbeds(replyMessage).queue();
@@ -335,16 +335,16 @@ public class ModMail extends ListenerAdapter {
 			if (theMessage.getContentRaw().startsWith("re: ")) {
 				embedBuilder
 						.setDescription(theMessage.getContentRaw().substring(4))
-						.setColor(ModmailCommon.lightGreen);
-				theMessage.addReaction(Emoji.fromUnicode(ModmailCommon.whiteCheckMark)).queue();
+						.setColor(ModmailCommon.LIGHT_GREEN);
+				theMessage.addReaction(Emoji.fromUnicode(ModmailCommon.WHITE_CHECK_MARK)).queue();
 			} else {
 				return;
 			}
 		} else {
 			embedBuilder
 					.setDescription(theMessage.getContentRaw())
-					.setColor(ModmailCommon.lightGreen);
-			theMessage.addReaction(Emoji.fromUnicode(ModmailCommon.whiteCheckMark)).queue();
+					.setColor(ModmailCommon.LIGHT_GREEN);
+			theMessage.addReaction(Emoji.fromUnicode(ModmailCommon.WHITE_CHECK_MARK)).queue();
 		}
 
 		// Set the image of the embed to the first attached image

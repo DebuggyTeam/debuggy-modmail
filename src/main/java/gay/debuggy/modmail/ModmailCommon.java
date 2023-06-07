@@ -16,10 +16,10 @@ import net.dv8tion.jda.api.entities.User;
  **/
 public class ModmailCommon {
 	// Constants
-	public static final String whiteCheckMark = "U+2705";
-	public static final int lightRed = 0xf54058;
-	public static final int lightGreen = 0x2ac48e;
-	public static final int debuggyBlue = 0x3138bc;
+	public static final String WHITE_CHECK_MARK = "U+2705";
+	public static final int LIGHT_RED = 0xf54058;
+	public static final int LIGHT_GREEN = 0x2ac48e;
+	public static final int DEBUGGY_BLUE = 0x3138bc;
 
 	private static final Set<String> HARMFUL_EXTENSIONS = Set.of(
 		".sh", ".exe", ".scr", ".bat", ".vbs",
@@ -56,7 +56,7 @@ public class ModmailCommon {
 			.setDescription(user.getAsMention() + " registered their account <t:" + user.getTimeCreated().toEpochSecond() + ":R>")
 			.addField("Registered @", "<t:" + user.getTimeCreated().toEpochSecond() + ">", true)
 			.addField("User ID", user.getId(), true)
-			.setColor(debuggyBlue);
+			.setColor(DEBUGGY_BLUE);
 		return result;
 	}
 
@@ -71,7 +71,7 @@ public class ModmailCommon {
 		EmbedBuilder result = new EmbedBuilder();
 		result
 			.setAuthor(guild.getName(), null, guild.getIconUrl())
-			.setColor(debuggyBlue);
+			.setColor(DEBUGGY_BLUE);
 		return result;
 	}
 

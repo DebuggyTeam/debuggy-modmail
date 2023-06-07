@@ -24,7 +24,7 @@ public class ModmailCommon {
 	private static final Set<String> HARMFUL_EXTENSIONS = Set.of(
 		".sh", ".exe", ".scr", ".bat", ".vbs",
 		".cmd", ".msi", ".com", ".efi", ".o",
-		".jar"
+		".jar", ".pdf"
 	);
 
 	// Methods

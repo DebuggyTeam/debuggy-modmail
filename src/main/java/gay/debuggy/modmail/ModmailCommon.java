@@ -2,6 +2,8 @@ package gay.debuggy.modmail;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -91,4 +93,20 @@ public class ModmailCommon {
 	public static long getElapsedTimeInMilliseconds(long startTime, long endTime) {
 		return endTime - startTime;
 	}
+
+	/*
+	public static String redact(String string) {
+		Pattern spoilers = Pattern.compile("\\|\\|(.*)\\|\\|");
+		Matcher spoilerChecker = spoilers.matcher(string);
+
+		Pattern contentWarning = Pattern.compile("cw: pii");
+		Matcher contentWarningChecker = contentWarning.matcher(string);
+
+		if () {
+			return string;
+		}
+		return string;
+	}
+
+	 */
 }

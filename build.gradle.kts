@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-	implementation("net.dv8tion:JDA:5.0.0-beta.11") {
+	implementation("net.dv8tion:JDA:5.0.0-beta.12") {
 		exclude(module = "opus-java")
 	}
 	implementation("com.google.guava:guava:31.1-jre")

@@ -78,13 +78,20 @@ public class ModmailCommon {
 		return result;
 	}
 
+	/**
+	 * Gets a value from the specified embed field.
+	 *
+	 * @param message The message that contains an embed
+	 * @param embedIndex The index for the embed
+	 * @param fieldIndex The index for a field in an embed
+	 * @return the field's value
+	 */
 	public static String getValueFromEmbedField(Message message, int embedIndex, int fieldIndex) {
 		return message.getEmbeds().get(embedIndex).getFields().get(fieldIndex).getValue();
 	}
 
 	/**
-	 * Creates an EmbedBuilder and fills in details representing a Guild - for instance, the guild that the modmail bot
-	 * is running in, for use in official DMs back to the affected user.
+	 * Gets the elapsed time between two timeframes.
 	 *
 	 * @param startTime The start time in milliseconds
 	 * @param endTime The end time in milliseconds

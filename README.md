@@ -14,4 +14,16 @@ Debuggy Modmail is a bot for Discord that allows people to contact community sta
 Debuggy Modmail is designed to be self-hosted.
 < insert stuff about env files >
 
+## Permissions
+This particular modmail bot only needs the following permissions:
+- Send Messages
+- Send Messages in Threads
+- Embed Links
+- Attach Files
+- Manage Threads
+- Read Message History
+- Create Private Threads
+- Add Reactions
+Any other permission(s) are uneccessary for this modmail bot to function.
+
 - in progress

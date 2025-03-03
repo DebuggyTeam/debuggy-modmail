@@ -24,6 +24,7 @@ This particular modmail bot only needs the following permissions:
 - Read Message History
 - Create Private Threads
 - Add Reactions
+
 Any other permission(s) are uneccessary for this modmail bot to function.
 
 - in progress
